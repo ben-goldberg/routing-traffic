@@ -6,6 +6,21 @@ import socket
 import sys
 import subprocess
 
+# TODO
+# -------------
+# Test current functionality
+# Make Router class to encapsulate this file
+# Instead of calling main, call my_router.setup & my_router.start
+# Constructor takes config file, gets neceassary info for .setup function
+# router has 4 phases for traffic simulation, provides API for seeing current
+#   phase and for switching between phases: my_router.get_phase(), .set_phase()
+#   this may require 2 processes: 1 to run routing, one to listen for phase
+#   change calls and notify main process
+# Provide throughput metrics
+# Make this run faster?
+# --------------
+
+
 class RoutingTable:
     class RoutingTableEntry:
         def __init__(self, param_list, metric=1):
@@ -142,6 +157,10 @@ def pkt_callback(pkt):
 
     # If the dest IP is local to this computer or LAN, kernel handles packet
     # Change to starts with
+    # TODO
+    # -------------------
+    # remove hard coding
+    # -------------------
     if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
         return
 
@@ -186,6 +205,12 @@ def pkt_callback(pkt):
     sendp(pkt, iface=out_iface, verbose=0)
 
 def setup():
+    # TODO
+    # -------------------
+    # Make this extensible to a general case / load info from config file
+    # i.e. remove hard coding
+    # -------------------
+
     global arp_table
     global routing_table
     # Disable ICMP echos
