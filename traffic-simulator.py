@@ -5,6 +5,7 @@ from scapy.all import *
 import socket
 import sys
 import subprocess
+import json
 
 # TODO
 # -------------
@@ -71,20 +72,16 @@ class RoutingTable:
         return bestEntry
 
 # Global Variables
-routing_table = RoutingTable()
-arp_table = []
+class Router:
+    def __init__(config_dict, my_ip):
+        self.routing_table = RoutingTable()
+        self.arp_table = []
 
-def ipstr_to_hex(ip_str):
-    """
-    input: an ip address as a scapy_table_string
-    output: the same ip as an int
-    """
-    str_byte_list = ip_str.split('.')
-    byte_list = [int(a) for a in str_byte_list]
-    ip_hex = 0
-    for i in range(len(byte_list)):
-        ip_hex += byte_list[i] << (8 * (len(byte_list) - i - 1))
-    return ip_hex
+
+
+# routing_table = RoutingTable()
+# arp_table = []
+
 
 def send_icmp(pkt, icmp_type, icmp_code):
     """
@@ -146,8 +143,6 @@ def send_icmp(pkt, icmp_type, icmp_code):
 
 #Your per-packet router code goes here
 def pkt_callback(pkt):
-    #print "Received an Ethernet packet. MAC src:", pkt.src, "MAC dst:",pkt.dst
-    #print pkt.summary()
 
     #Determine if it is an IP packet. If not then return
     if IP not in pkt:
@@ -216,7 +211,6 @@ def setup():
     # Disable ICMP echos
     subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
     subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
-    #subprocess.Popen('sudo iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP'.split())
 
     # Ping the routers and node0 w/ TTL 1 --> ARP created 
     subprocess.Popen('ping 10.99.0.1 -c 1'.split())
@@ -281,7 +275,10 @@ def setup():
     routing_table.add_entry(subnet1Entry)
     routing_table.add_entry(subnet2Entry)
     routing_table.add_entry(subnet3Entry)
-    
+
+
+
+
 
 #Main code here...
 if __name__ == "__main__":
