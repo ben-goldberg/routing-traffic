@@ -17,17 +17,32 @@ def ipstr_to_hex(ip_str):
 def parse_config(in_file):
     """
     Input: path to config file
-    Output: router and dest IP info as a _____ type
+    Output: routing info as a dictionary type
     Details: config file contains a list of all dest IPs, and for each node 
              (including dests and routers) contains a list of all neighboring
-             node IPs, all in below specified JSON format
+             node IPs, for each node contains a dict of dest -> nexthop 
+             mappings, all in below specified JSON format
     Example:{
                 "dests": ["5.6.7.8", "9.10.11.12"]
                 "routers": ["1.2.3.4"]
-                "mappings": {
+                "adjacent_to": {
                     "1.2.3.4": ["5.6.7.8", "9.10.11.12"]
                     "5.6.7.8": ["1.2.3.4"]
                     "9.10.11.12": ["1.2.3.4"]
+                }
+                "next_hop": {
+                    "1.2.3.4": {
+                        "5.6.7.8": "5.6.7.8"
+                        "9.10.11.12": "9.10.11.12"
+                    }
+                    "5.6.7.8": {
+                        "1.2.3.4": "1.2.3.4"
+                        "9.10.11.12": "1.2.3.4"
+                    }
+                    "9.10.11.12": {
+                        "1.2.3.4": "1.2.3.4"
+                        "5.6.7.8": "1.2.3.4"
+                    }
                 }
             }
     """

@@ -6,7 +6,7 @@ import socket
 import sys
 import subprocess
 import json
-from util.py import *
+from util import *
 
 # TODO
 # -------------
@@ -79,6 +79,9 @@ class RoutingTable:
 
 class Router:
     def __init__(config_dict, my_ip):
+        """
+        Input: a dictionary of type specified in util.py, an IP addr as a string
+        """
         self.config_dict = config_dict
         self.my_ip = my_ip
         self.routing_table = RoutingTable()
@@ -143,7 +146,7 @@ class Router:
 
         sendp(out_pkt, iface=iface, verbose=0)
 
-    #Your per-packet router code goes here
+
     def pkt_callback(pkt):
         """
         input: a packet
@@ -158,13 +161,18 @@ class Router:
         dest_ip = pkt[IP].dst
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
+        #if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
+        #    return
         # Change to starts with
         # TODO
         # -------------------
         # remove hard coding
         # -------------------
-        if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
+
+        # drop packet if dest IP is directly connected, or if dest IP is this node
+        if any(dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]) or "192.168" in dest_ip:
             return
+        
 
         # Is the destination *network* in your routing table, if not, send ICMP "Destination host unreachable", then return
         has_route = False
@@ -217,16 +225,33 @@ class Router:
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
 
-        # Ping the routers and node0 w/ TTL 1 --> ARP created 
-        subprocess.Popen('ping 10.99.0.1 -c 1'.split())
-        subprocess.Popen('ping 10.99.0.2 -c 1'.split())
-        subprocess.Popen('ping 10.10.0.1 -c 1'.split())
+        # Ping the routers and node0 w/ TTL 1 --> ARP created
+        # subprocess.Popen('ping 10.99.0.1 -c 1'.split())
+        # subprocess.Popen('ping 10.99.0.2 -c 1'.split())
+        # subprocess.Popen('ping 10.10.0.1 -c 1'.split())
+        # TODO
+        # -----
+        # ping each node in self.config_dict[self.my_ip]
+        # -----
+        for ip in self.config_dict["adjacent_to"][self.my_ip]:
+            ping_str = 'ping ' + str(ip) + ' -c 1'
+            subprocess.Popen(ping_str.split())
 
         # Construct Routing Table
+        # subnet1 = ["10.1.0.0", 0xFFFFFF00, "10.99.0.1"]
+        # subnet2 = ["10.1.2.0", 0xFFFFFF00, "10.99.0.2"]
+        # subnet3 = ["10.1.3.0", 0xFFFFFF00, "10.99.0.2"]
         # Hardcoded IP mappings
-        subnet1 = ["10.1.0.0", 0xFFFFFF00, "10.99.0.1"]
-        subnet2 = ["10.1.2.0", 0xFFFFFF00, "10.99.0.2"]
-        subnet3 = ["10.1.3.0", 0xFFFFFF00, "10.99.0.2"]
+        # TODO
+        # -----
+        # for each dest, make a subnet entry from dest to gateway IP
+        # -----
+        router_table = []
+        for dest in self.config_dict["dests"]:
+            gateway_ip = self.config["next_hop"][self.my_ip][dest]
+            entry = [str(dest), 0xFFFFFF00, gateway_ip]
+            router_table.append(entry)
+        
 
         # Look at ARP table for corresponding info
         process = subprocess.Popen("arp -a".split(), stdout=subprocess.PIPE)
@@ -243,13 +268,22 @@ class Router:
         print "arp table:\n\n" + str(arp_table)
 
         # Add the dest MAC info into the subnet info
-        for entry in arp_table:
-            if entry[0] == subnet1[2]:
-                subnet1 += entry[1:]
-            if entry[0] == subnet2[2]:
-                subnet2 += entry[1:]
-            if entry[0] == subnet3[2]:
-                subnet3 += entry[1:]
+        # for entry in arp_table:
+        #     if entry[0] == subnet1[2]:
+        #         subnet1 += entry[1:]
+        #     if entry[0] == subnet2[2]:
+        #         subnet2 += entry[1:]
+        #     if entry[0] == subnet3[2]:
+        #         subnet3 += entry[1:]
+        # TODO
+        # -----
+        # for each dest, make a subnet entry from dest to gateway IP
+        # -----
+        for i in range(len(router_table)):
+            for arp_entry in arp_table:
+                if arp_entry[0] == router_table[i][2]:
+                    router_table[i] += arp_entry[1:]
+                    break
 
         # For each unique interface found above, we want to find the local mac
         #  that corresponds to it using ifconfig
@@ -270,30 +304,50 @@ class Router:
 
         # Combine the parameters we have gathered for each subnet and add them
         #  to the routing table
-        subnet1.append(interface_destmac_dict[subnet1[-1]])
-        subnet2.append(interface_destmac_dict[subnet2[-1]])
-        subnet3.append(interface_destmac_dict[subnet3[-1]])
+        # subnet1.append(interface_destmac_dict[subnet1[-1]])
+        # subnet2.append(interface_destmac_dict[subnet2[-1]])
+        # subnet3.append(interface_destmac_dict[subnet3[-1]])
+        for i in range(len(router_table)):
+            router_table[i].append(interface_destmac_dict[router_table[i][-1]])
 
-        subnet1Entry = RoutingTable.RoutingTableEntry(subnet1)
-        subnet2Entry = RoutingTable.RoutingTableEntry(subnet2)
-        subnet3Entry = RoutingTable.RoutingTableEntry(subnet3)
-        routing_table.add_entry(subnet1Entry)
-        routing_table.add_entry(subnet2Entry)
-        routing_table.add_entry(subnet3Entry)
+        # subnet1Entry = RoutingTable.RoutingTableEntry(subnet1)
+        # subnet2Entry = RoutingTable.RoutingTableEntry(subnet2)
+        # subnet3Entry = RoutingTable.RoutingTableEntry(subnet3)
+        # routing_table.add_entry(subnet1Entry)
+        # routing_table.add_entry(subnet2Entry)
+        # routing_table.add_entry(subnet3Entry)
+        # TODO
+        # -----
+        # add entries from router_table to self.routing_table
+        # -----
+        
+
+        routing_table = RoutingTable()
+        for entry in router_table:
+            routing_entry = RoutingTable.RoutingTableEntry(entry)
+            routing_table.add_entry(routing_entry)
 
         self.routing_table = routing_table
         self.arp_table = arp_table
 
 
 
-
-
-#Main code here...
 if __name__ == "__main__":
-    #First setup your routing table either as global variables or as objects passed to pkt_callback
-    #And any other init code
-    setup()
-    print "routing_table: ", routing_table
+    # Parse command line input:
+    # python traffic-simulator.py filename my_ip
+    args = sys.argv
+    config_filename = str(args[1])
+    my_ip = str(args[2])
+
+    # First, parse the config file
+    config_dict = parse_config(config_filename)
+
+    # Instantiate this router
+    my_router = Router(config_dict, my_ip)
+
+    #First setup your routing table and any other init code
+    my_router.setup()
+    print "routing_table: ", my_router.routing_table
 
     #Start the packet sniffer
-    sniff(prn=pkt_callback, store=0)
+    sniff(prn=my_router.pkt_callback, store=0)
