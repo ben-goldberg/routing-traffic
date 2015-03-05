@@ -5,7 +5,6 @@ from scapy.all import *
 import socket
 import sys
 import subprocess
-import json
 from util import *
 
 # TODO
@@ -78,7 +77,7 @@ class RoutingTable:
 
 
 class Router:
-    def __init__(config_dict, my_ip):
+    def __init__(self, config_dict, my_ip):
         """
         Input: a dictionary of type specified in util.py, an IP addr as a string
         """
@@ -88,7 +87,7 @@ class Router:
         self.arp_table = []
 
 
-    def send_icmp(pkt, icmp_type, icmp_code):
+    def send_icmp(self, pkt, icmp_type, icmp_code):
         """
         input: bad packet, with type and code of desired ICMP message
         output: none
@@ -147,7 +146,7 @@ class Router:
         sendp(out_pkt, iface=iface, verbose=0)
 
 
-    def pkt_callback(pkt):
+    def pkt_callback(self, pkt):
         """
         input: a packet
         output: none
@@ -214,7 +213,7 @@ class Router:
         #Send the packet out the proper interface as required to reach the next hop router. Use:
         sendp(pkt, iface=out_iface, verbose=0)
 
-    def setup():
+    def setup(self):
         # TODO
         # -------------------
         # Make this extensible to a general case / load info from config file
@@ -248,7 +247,7 @@ class Router:
         # -----
         router_table = []
         for dest in self.config_dict["dests"]:
-            gateway_ip = self.config["next_hop"][self.my_ip][dest]
+            gateway_ip = self.config_dict["next_hop"][self.my_ip][dest]
             entry = [str(dest), 0xFFFFFF00, gateway_ip]
             router_table.append(entry)
         
@@ -336,11 +335,17 @@ if __name__ == "__main__":
     # Parse command line input:
     # python traffic-simulator.py filename my_ip
     args = sys.argv
+
+    print args
+
     config_filename = str(args[1])
     my_ip = str(args[2])
 
     # First, parse the config file
     config_dict = parse_config(config_filename)
+    print config_dict
+    print
+    print my_ip
 
     # Instantiate this router
     my_router = Router(config_dict, my_ip)
