@@ -298,7 +298,6 @@ class Router:
             local_mac = output_list[output_list.index('HWaddr')+1]
             interface_destmac_dict[interface] = local_mac
 
-        print "subnet3: ", subnet3
         print "interface dict: ", interface_destmac_dict
 
         # Combine the parameters we have gathered for each subnet and add them
