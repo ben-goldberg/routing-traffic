@@ -163,10 +163,13 @@ class Router:
         # remove hard coding
         # -------------------
 
+        print "IP packet found"
+
         # drop packet if dest IP is directly connected, or if dest IP is this node
         if any(dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]) or "192.168" in dest_ip:
             return
         
+        print "packet not locally bound, should be routed"
 
         # If destination *network* not in routing table, send ICMP "Destination host unreachable", then return
         has_route = False
@@ -180,6 +183,7 @@ class Router:
             print dest_ip + " is unreachable"
             #self.send_icmp(pkt, icmp_type=3, icmp_code=11)
             return
+
 
         # Decrement the TTL. If TTL=0, send ICMP for TTL expired and return.
         pkt[IP].ttl -= 1
