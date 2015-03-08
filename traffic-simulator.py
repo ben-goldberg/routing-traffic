@@ -92,6 +92,9 @@ class Router:
         input: bad packet, with type and code of desired ICMP message
         output: none
         """
+        
+        print "sending ICMP"
+
         # Craft ICMP response
         icmp_pkt = Ether()/IP()/ICMP()
 
@@ -119,22 +122,14 @@ class Router:
                 iface = entry.interface
                 entry_found = 1
 
-        print "======= ICMP Packet ========"
-
         if not entry_found:
-            print "Entry not found"
             for arp_entry in self.arp_table:
-                print arp_entry
                 if out_pkt[IP].dst in arp_entry:
-                    print "Found arp entry!"
                     out_pkt.dst = arp_entry[1]
                     iface = arp_entry[2]
-            print " - End ARP Table -"
             
-            print "iface: " + str(iface)
             process = subprocess.Popen(["ifconfig", str(iface)], stdout=subprocess.PIPE)
             output = process.communicate()[0]
-            print "output: " + str(output)
             output_list = output.replace('\n', ' ').split()
 
             # This is hardcoded based on the output of ifconfig on the nodes,
@@ -297,8 +292,6 @@ class Router:
             # as the local mac address is the word after HWaddr
             local_mac = output_list[output_list.index('HWaddr')+1]
             interface_destmac_dict[interface] = local_mac
-
-        print "interface dict: ", interface_destmac_dict
 
         # Combine the parameters we have gathered for each subnet and add them
         #  to the routing table
