@@ -168,7 +168,7 @@ class Router:
             return
         
 
-        # Is the destination *network* in your routing table, if not, send ICMP "Destination host unreachable", then return
+        # If destination *network* not in routing table, send ICMP "Destination host unreachable", then return
         has_route = False
         for entry in self.routing_table:
             # Make sure these comparisons are valid
@@ -178,13 +178,14 @@ class Router:
 
         if not has_route:
             print dest_ip + " is unreachable"
-            self.send_icmp(pkt, icmp_type=3, icmp_code=11)
+            #self.send_icmp(pkt, icmp_type=3, icmp_code=11)
             return
 
         # Decrement the TTL. If TTL=0, send ICMP for TTL expired and return.
         pkt[IP].ttl -= 1
         if pkt[IP].ttl < 1:
-            self.send_icmp(pkt, icmp_type=11, icmp_code=0)
+            print "ttl expired"
+            #self.send_icmp(pkt, icmp_type=11, icmp_code=0)
             return
 
         # Find the next hop (gateway) for the destination *network*
