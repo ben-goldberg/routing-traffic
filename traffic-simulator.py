@@ -335,17 +335,11 @@ if __name__ == "__main__":
     # Parse command line input:
     # python traffic-simulator.py filename my_ip
     args = sys.argv
-
-    print args
-
     config_filename = str(args[1])
     my_ip = str(args[2])
 
     # First, parse the config file
     config_dict = parse_config(config_filename)
-    print config_dict
-    print
-    print my_ip
 
     # Instantiate this router
     my_router = Router(config_dict, my_ip)
