@@ -166,7 +166,12 @@ class Router:
 
 
         # drop packet if dest IP is directly connected, or if dest IP is this node
-        if any(dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]) or "192.168" in dest_ip:
+        netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
+        if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
+            return
+
+        # drop packets from control network
+        if "192.168" in dest_ip:
             return
         
         print dest_ip

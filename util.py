@@ -16,6 +16,23 @@ def ipstr_to_hex(ip_str):
         ip_hex += byte_list[i] << (8 * (len(byte_list) - i - 1))
     return ip_hex
 
+def hex_to_ipstr(hex_val):
+    """
+    input: an ip address as an int
+    output: the same ip as a period-seperated string
+    """
+    o1 = str((hex_val / 16777216) % 256)
+    o2 = str((hex_val / 65536) % 256)
+    o3 = str((hex_val / 256) % 256)
+    o4 = str((hex_val) % 256)
+    return o1 + '.' + o2 + '.' + o3 + '.' + o4
+
+def nindex(mystr, substr, n=0, index=0):
+    for _ in xrange(n+1):
+        index = mystr.index(substr, index) + 1
+    return index - 1
+
+
 def parse_config(in_file):
     """
     Input: path to config file
