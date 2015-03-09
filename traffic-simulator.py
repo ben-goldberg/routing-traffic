@@ -153,6 +153,7 @@ class Router:
             return
 
         dest_ip = pkt[IP].dst
+        print dest_ip
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
         #if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
