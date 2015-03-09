@@ -153,7 +153,7 @@ class Router:
             return
 
         dest_ip = pkt[IP].dst
-        print dest_ip
+
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
         #if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
@@ -169,6 +169,7 @@ class Router:
         if any(dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]) or "192.168" in dest_ip:
             return
         
+        print dest_ip
         print "packet not locally bound, should be routed"
 
         # If destination *network* not in routing table, send ICMP "Destination host unreachable", then return
