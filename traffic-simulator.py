@@ -154,7 +154,8 @@ class Router:
 
         dest_ip = pkt[IP].dst
 
-
+        if pkt[IP].src == "10.10.0.1":
+            print "found packet from node1"
         # If the dest IP is local to this computer or LAN, kernel handles packet
         #if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
         #    return
