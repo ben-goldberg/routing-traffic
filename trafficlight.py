@@ -1,15 +1,15 @@
 # Author: Ben Goldberg
 from scapy.all import *
 import router
-
+import multiprocessing
 
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
         self.light_state = 0
-        self.north_array = []
-        self.east_array = []
-        self.south_array = []
-        self.west_array = []
+        self.north_array = multiprocessing.Queue()
+        self.east_array = multiprocessing.Queue()
+        self.south_array = multiprocessing.Queue()
+        self.west_array = multiprocessing.Queue()
         self.router = router.Router(config_dict, my_ip)
 
         # Setup router
@@ -33,3 +33,34 @@ class TrafficLight:
 
         # Send the packet out the proper interface as required to reach the next hop router
         sendp(new_pkt, iface=out_iface, verbose=0)
+
+def receive_packet(pkt, mac_to_dir_dict, north_array, east_array, south_array, west_array):
+    """
+    input: a packet, a dict of source MAC -> received direction mappings, 
+           and 4 multiprocessing arrays: one for each receive direction
+    output: None
+    side effects: puts packet into appropriate multiprocessing queue
+    details: this is the sniff() callback function for handling a received packet
+    """
+    source_mac = pkt.src
+    if pkt in mac_to_dir_dict["north"]:
+        north_array.put(pkt)
+    elif pkt in mac_to_dir_dict["east"]:
+        east_array.put(pkt)
+    elif pkt in mac_to_dir_dict["south"]:
+        south_array.put(pkt)
+    elif pkt in mac_to_dir_dict["west"]:
+        west_array.put(pkt)
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,26 @@
 
 import json
 
+def match_MAC_to_direction(router, config_dict):
+    """
+    input: a router object, and a dictionary of type specified in parse_config
+    output: returns a dictionary of dest MAC -> receive direction string
+    example: {
+                "12:34:56:78:9a:bc": "adjacent_north",
+                "22:33:44:55:66:77": "adjacent_east",
+                "55:44:33:66:55:76": "adjacent_south",
+                "98:76:65:32:23:16": "adjacent_west"
+             }
+    """
+    mac_to_dir_dict = {}
+    my_ip = router.my_ip
+    direction_list = ["adjacent_north", "adjacent_east", "adjacent_south", "adjacent_west"]
+    for entry in router.routing_table.table:
+        for direction in direction_list:
+            if entry.dest == config_dict[direction][my_ip]:
+                mac_to_dir_dict[entry.local_mac] = direction
+                break
+
 def ipstr_to_hex(ip_str):
     """
     input: an ip address as a scapy_table_string
@@ -49,6 +69,14 @@ def parse_config(in_file):
                     "5.6.7.8": ["1.2.3.4"],
                     "9.10.11.12": ["1.2.3.4"]
                 },
+                "adjacent_north": {
+                    "1.2.3.4": "5.6.7.8"
+                },
+                "adjacent_east": {},
+                "adjacent_south": {
+                    "1.2.3.4": "9.10.11.12"
+                },
+                "adjacent_west": {},
                 "next_hop": {
                     "1.2.3.4": {
                         "5.6.7.8": "5.6.7.8",
