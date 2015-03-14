@@ -1,6 +1,6 @@
 # Author: Ben Goldberg
 # Adapted from https://github.com/ben-goldberg/userspace-routing
-# Written by Ben Goldberg
+#     Written by Ben Goldberg and Louis Brann
 import socket
 import sys
 import subprocess
@@ -25,9 +25,30 @@ class TrafficLight:
         self.west_array = []
         self.router = Router(config_dict, my_ip)
 
+        # Setup router
+        self.router.setup()
 
+    def handle_packet(self, pkt):
+        """
+        input: a packet
+        output: None
+        side effects: takes in received packet, drops packet if necessary,
+                      or sends to its next hop
+        """
+
+        # Check if packet should be dropped
+        drop_pkt = self.router.should_drop_pkt(pkt)
+        if drop_pkt:
+            return
+
+        # Since packet is valid, prepare it to be sent
+        new_pkt = self.router.prep_pkt(pkt)
+
+        # Send the packet out the proper interface as required to reach the next hop router
+        sendp(new_pkt, iface=out_iface, verbose=0)
 
 class RoutingTable:
+
     class RoutingTableEntry:
         def __init__(self, param_list, metric=1):
             self.dest = param_list[0]
@@ -49,17 +70,23 @@ class RoutingTable:
 
     def __init__(self):
         self.table = []
+
     def __repr__(self):
         out_str = "Routing Table\n"
         for entry in self.table:
             out_str += str(entry) + "\n"
         return out_str
+
     def __iter__(self):
         return iter(self.table)
+
     def add_entry(self, entry):
         self.table.append(entry)
+
     def find_entry(self, ip):
-        """ Finds most specific routing table entry, breaking ties on metric """
+        """ 
+        Finds most specific routing table entry, breaking ties on metric 
+        """
         # Dummmy variable
         dummy_param_list = ["0.0.0.0", 0xFFFFFFFF, "0.0.0.0", "00:00:00:00:00:00", "eth0", "00:00:00:00:00:00"]
         bestEntry = RoutingTable.RoutingTableEntry(dummy_param_list,sys.maxint)
@@ -92,8 +119,8 @@ class Router:
         """
         input: bad packet, with type and code of desired ICMP message
         output: none
+        side effects: sends appropriate ICMP message
         """
-        
         print "sending ICMP"
 
         # Craft ICMP response
@@ -142,27 +169,27 @@ class Router:
         sendp(out_pkt, iface=iface, verbose=0)
 
 
-    def pkt_callback(self, pkt):
+    def should_drop_pkt(self, pkt):
         """
         input: a packet
-        output: none
-        side effects: handles this step of routing for input packet
+        output: returns a bool representing if packet should be dropped or not
+                True if pkt should be dropped, False otherwise
+        side effects: If pkt's dest is not in routing table, sends ICMP message
         """
-
         #Determine if it is an IP packet. If not then return
         if IP not in pkt:
-            return
+            return True
 
         dest_ip = pkt[IP].dst
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
         netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
         if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
-            return
+            return True
 
         # Drop packets from control network
         if "192.168" in dest_ip:
-            return
+            return True
 
         # If destination *network* not in routing table, send ICMP "Destination host unreachable", then return
         has_route = False
@@ -175,27 +202,41 @@ class Router:
         if not has_route:
             print dest_ip + " is unreachable"
             self.send_icmp(pkt, icmp_type=3, icmp_code=11)
-            return
+            return True
 
-
-        # Decrement the TTL. If TTL=0, send ICMP for TTL expired and return.
-        pkt[IP].ttl -= 1
-        if pkt[IP].ttl < 1:
+        # If Packet's Time-To-Live is 1, this iteration will drop it to 0
+        # Thus, packet should be dropped, send ICMP for TTL expired
+        if pkt[IP].ttl == 1:
             print "ttl expired"
-            #self.send_icmp(pkt, icmp_type=11, icmp_code=0)
-            return
+            self.send_icmp(pkt, icmp_type=11, icmp_code=0)
+            return True
 
+        # Drop packet if src is equal to local_mac, as this means pkt is duplicate
+        if pkt.src == self.routing_table.find_entry(pkt[IP].dst).local_mac:
+            return True
+
+        # If we get this far, the packet is valid and should not be dropped
+        return False
+
+    def prep_pkt(self, pkt):
+        """
+        input: a valid packet
+        output: returns a packet to be sent
+        side effects: handles this step of routing for input packet
+        details: this function assumes a valid packet, i.e. a packet which
+                 should not be dropped at this router
+        """
+        # Decrement the TTL. 
+        pkt[IP].ttl -= 1
+        
         # Find the next hop (gateway) for the destination *network*
-        routing_entry = self.routing_table.find_entry(dest_ip)
+        routing_entry = self.routing_table.find_entry(pkt[IP].dst)
         gateway = routing_entry.gateway
 
         # Determine the outgoing interface and MAC address needed to reach the next-hop router
         out_iface = routing_entry.interface
 
         # Modify the SRC and DST MAC addresses to match the outgoing interface and the DST MAC found above
-        # Drop packet if src is equal to local_mac, as this means pkt is duplicate
-        if pkt.src == routing_entry.local_mac:
-            return
         pkt.src = routing_entry.local_mac
         pkt.dst = routing_entry.gateway_mac
 
@@ -203,8 +244,7 @@ class Router:
         del pkt[IP].chksum
         pkt = pkt.__class__(str(pkt))
 
-        #Send the packet out the proper interface as required to reach the next hop router. Use:
-        sendp(pkt, iface=out_iface, verbose=0)
+        return pkt
 
     def setup(self):
 
@@ -286,9 +326,9 @@ if __name__ == "__main__":
     config_dict = parse_config(config_filename)
 
     # Instantiate this router
-    my_router = Router(config_dict, my_ip)
+    my_traffic_light = TrafficLight(config_dict, my_ip)
 
-    #First setup your routing table and any other init code
+    # First setup your routing table and any other init code
     my_router.setup()
     print "routing_table: ", my_router.routing_table
 
