@@ -1,7 +1,6 @@
 # Author: Ben Goldberg
 # Adapted from https://github.com/ben-goldberg/userspace-routing
-# Written by Ben Goldberg & Louis Brann
-from scapy.all import *
+# Written by Ben Goldberg
 import socket
 import sys
 import subprocess
@@ -9,10 +8,6 @@ from util import *
 
 # TODO
 # -------------
-# Test current functionality
-# Make Router class to encapsulate this file
-# Instead of calling main, call my_router.setup & my_router.start
-# Constructor takes config file, gets neceassary info for .setup function
 # router has 4 phases for traffic simulation, provides API for seeing current
 #   phase and for switching between phases: my_router.get_phase(), .set_phase()
 #   this may require 2 processes: 1 to run routing, one to listen for phase
@@ -20,6 +15,16 @@ from util import *
 # Provide throughput metrics
 # Make this run faster?
 # --------------
+
+class TrafficLight:
+    def __init__(self, config_dict, my_ip):
+        self.light_state = 0
+        self.north_array = []
+        self.east_array = []
+        self.south_array = []
+        self.west_array = []
+        self.router = Router(config_dict, my_ip)
+
 
 
 class RoutingTable:
@@ -70,10 +75,6 @@ class RoutingTable:
                      if entry.metric < bestEntry.metric:
                         bestEntry = entry
         return bestEntry
-
-# Global Variables
-# routing_table = RoutingTable()
-# arp_table = []
 
 
 class Router:
@@ -155,21 +156,11 @@ class Router:
         dest_ip = pkt[IP].dst
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
-        #if "10.99.0" in dest_ip or "10.10.0" in dest_ip or "192.168" in dest_ip:
-        #    return
-        # Change to starts with
-        # TODO
-        # -------------------
-        # remove hard coding
-        # -------------------
-
-
-        # drop packet if dest IP is directly connected, or if dest IP is this node
         netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
         if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
             return
 
-        # drop packets from control network
+        # Drop packets from control network
         if "192.168" in dest_ip:
             return
 
@@ -183,7 +174,7 @@ class Router:
 
         if not has_route:
             print dest_ip + " is unreachable"
-            #self.send_icmp(pkt, icmp_type=3, icmp_code=11)
+            self.send_icmp(pkt, icmp_type=3, icmp_code=11)
             return
 
 
@@ -216,37 +207,17 @@ class Router:
         sendp(pkt, iface=out_iface, verbose=0)
 
     def setup(self):
-        # TODO
-        # -------------------
-        # Make this extensible to a general case / load info from config file
-        # i.e. remove hard coding
-        # -------------------
 
         # Disable ICMP echos
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
 
         # Ping the routers and node0 w/ TTL 1 --> ARP created
-        # subprocess.Popen('ping 10.99.0.1 -c 1'.split())
-        # subprocess.Popen('ping 10.99.0.2 -c 1'.split())
-        # subprocess.Popen('ping 10.10.0.1 -c 1'.split())
-        # TODO
-        # -----
-        # ping each node in self.config_dict[self.my_ip]
-        # -----
         for ip in self.config_dict["adjacent_to"][self.my_ip]:
             ping_str = 'ping ' + str(ip) + ' -c 1'
             subprocess.Popen(ping_str.split())
 
         # Construct Routing Table
-        # subnet1 = ["10.1.0.0", 0xFFFFFF00, "10.99.0.1"]
-        # subnet2 = ["10.1.2.0", 0xFFFFFF00, "10.99.0.2"]
-        # subnet3 = ["10.1.3.0", 0xFFFFFF00, "10.99.0.2"]
-        # Hardcoded IP mappings
-        # TODO
-        # -----
-        # for each dest, make a subnet entry from dest to gateway IP
-        # -----
         router_table = []
         for dest in self.config_dict["dests"]:
             gateway_ip = self.config_dict["next_hop"][self.my_ip][dest]
@@ -269,17 +240,6 @@ class Router:
         print "arp table:\n\n" + str(arp_table)
 
         # Add the dest MAC info into the subnet info
-        # for entry in arp_table:
-        #     if entry[0] == subnet1[2]:
-        #         subnet1 += entry[1:]
-        #     if entry[0] == subnet2[2]:
-        #         subnet2 += entry[1:]
-        #     if entry[0] == subnet3[2]:
-        #         subnet3 += entry[1:]
-        # TODO
-        # -----
-        # for each dest, make a subnet entry from dest to gateway IP
-        # -----
         for i in range(len(router_table)):
             for arp_entry in arp_table:
                 if arp_entry[0] == router_table[i][2]:
@@ -302,23 +262,8 @@ class Router:
 
         # Combine the parameters we have gathered for each subnet and add them
         #  to the routing table
-        # subnet1.append(interface_destmac_dict[subnet1[-1]])
-        # subnet2.append(interface_destmac_dict[subnet2[-1]])
-        # subnet3.append(interface_destmac_dict[subnet3[-1]])
         for i in range(len(router_table)):
             router_table[i].append(interface_destmac_dict[router_table[i][-1]])
-
-        # subnet1Entry = RoutingTable.RoutingTableEntry(subnet1)
-        # subnet2Entry = RoutingTable.RoutingTableEntry(subnet2)
-        # subnet3Entry = RoutingTable.RoutingTableEntry(subnet3)
-        # routing_table.add_entry(subnet1Entry)
-        # routing_table.add_entry(subnet2Entry)
-        # routing_table.add_entry(subnet3Entry)
-        # TODO
-        # -----
-        # add entries from router_table to self.routing_table
-        # -----
-        
 
         routing_table = RoutingTable()
         for entry in router_table:
