@@ -2,6 +2,7 @@
 from scapy.all import *
 import router
 
+
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
         self.light_state = 0
