@@ -1,3 +1,7 @@
+# Author: Ben Goldberg
+from scapy.all import *
+import router
+
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
         self.light_state = 0
@@ -5,7 +9,7 @@ class TrafficLight:
         self.east_array = []
         self.south_array = []
         self.west_array = []
-        self.router = Router(config_dict, my_ip)
+        self.router = router.Router(config_dict, my_ip)
 
         # Setup router
         self.router.setup()

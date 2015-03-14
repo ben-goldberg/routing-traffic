@@ -1,6 +1,7 @@
 # Author: Ben Goldberg
+from scapy.all import *
 from trafficlight import TrafficLight
-import util
+import util, sys
 
 if __name__ == "__main__":
     """
