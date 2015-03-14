@@ -316,8 +316,9 @@ class Router:
 
 
 if __name__ == "__main__":
-    # Parse command line input:
-    # python traffic-simulator.py filename my_ip
+    """
+    Expects command line input: python traffic-simulator.py filename my_ip
+    """
     args = sys.argv
     config_filename = str(args[1])
     my_ip = str(args[2])
@@ -325,12 +326,10 @@ if __name__ == "__main__":
     # First, parse the config file
     config_dict = parse_config(config_filename)
 
-    # Instantiate this router
+    # Instantiate this traffic light
     my_traffic_light = TrafficLight(config_dict, my_ip)
 
-    # First setup your routing table and any other init code
-    my_router.setup()
-    print "routing_table: ", my_router.routing_table
+    print "routing_table: ", my_traffic_light.router.routing_table
 
     #Start the packet sniffer
-    sniff(prn=my_router.pkt_callback, store=0)
+    sniff(prn=my_traffic_light.handle_packet, store=0)
