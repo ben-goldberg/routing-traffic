@@ -5,11 +5,18 @@ import multiprocessing
 
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
+        """
+        details: light state can be 0,1,2,3 where:
+                 0 -> North and South are allowed to turn
+                 1 -> North and South are allowed to go straight
+                 2 -> East and West are allowed to turn
+                 3 -> East and West are allowed to go straight
+        """
         self.light_state = 0
-        self.north_array = multiprocessing.Queue()
-        self.east_array = multiprocessing.Queue()
-        self.south_array = multiprocessing.Queue()
-        self.west_array = multiprocessing.Queue()
+        self.north_queue = multiprocessing.Queue()
+        self.east_queue = multiprocessing.Queue()
+        self.south_queue = multiprocessing.Queue()
+        self.west_queue = multiprocessing.Queue()
         self.router = router.Router(config_dict, my_ip)
 
         # Setup router
@@ -34,32 +41,46 @@ class TrafficLight:
         # Send the packet out the proper interface as required to reach the next hop router
         sendp(new_pkt, iface=out_iface, verbose=0)
 
-def receive_packet(pkt, mac_to_dir_dict, north_array, east_array, south_array, west_array):
-    """
-    input: a packet, a dict of source MAC -> received direction mappings, 
-           and 4 multiprocessing arrays: one for each receive direction
-    output: None
-    side effects: puts packet into appropriate multiprocessing queue
-    details: this is the sniff() callback function for handling a received packet
-    """
-    source_mac = pkt.src
-    if pkt in mac_to_dir_dict["north"]:
-        north_array.put(pkt)
-    elif pkt in mac_to_dir_dict["east"]:
-        east_array.put(pkt)
-    elif pkt in mac_to_dir_dict["south"]:
-        south_array.put(pkt)
-    elif pkt in mac_to_dir_dict["west"]:
-        west_array.put(pkt)
+    def start():
+        """
+        input: None
+        output: None
+        side effects: handles all runtime aspects of traffic light, including
+                      determining current light state, getting packets to route
+                      from correct multiprocessing queue, and sending packets
+                      to their appropriate destinations
+        """
+        # TODO
+        # ---------------
+        # add go straight vs turn left distinctions
+        # ---------------
+        while True:
+            # First, determine new state
+            self.light_state = self.determine_state()
 
+            # Based on state, get a packet from each of the allowable directions
+            # North and South are allowed to turn
+            if self.light_state == 0:
+                pkt1 = self.north_queue.get()
+                pkt2 = self.south_queue.get()
 
+            # North and South are allowed to go straight    
+            elif self.light_state == 1:
+                pkt1 = self.north_queue.get()
+                pkt2 = self.south_queue.get()
 
+            # East and West are allowed to turn
+            elif self.light_state == 2:
+                pkt1 = self.east_queue.get()
+                pkt2 = self.west_queue.get()
 
+            # East and West are allowed to go straight
+            else:
+                pkt1 = self.east_queue.get()
+                pkt2 = self.west_queue.get()
 
-
-
-
-
+            self.handle_packet(pkt1)
+            self.handle_packet(pkt2)
 
 
 
