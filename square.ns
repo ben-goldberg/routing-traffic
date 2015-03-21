@@ -1,0 +1,88 @@
+set ns [new Simulator]
+source tb_compat.tcl
+
+
+# Nodes
+set node0 [$ns node]
+tb-set-node-os $node0 Ubuntu1004-STD
+set node1 [$ns node]
+tb-set-node-os $node0 Ubuntu1004-STD
+set node2 [$ns node]
+tb-set-node-os $node0 Ubuntu1004-STD
+set node3 [$ns node]
+tb-set-node-os $node3 Ubuntu1004-STD
+set node4 [$ns node]
+tb-set-node-os $node3 Ubuntu1004-STD
+set node5 [$ns node]
+tb-set-node-os $node3 Ubuntu1004-STD
+set node6 [$ns node]
+tb-set-node-os $node3 Ubuntu1004-STD
+set node7 [$ns node]
+tb-set-node-os $node3 Ubuntu1004-STD
+
+
+# Routers
+set rtr0 [$ns node]
+tb-set-node-os $rtr0 Ubuntu1004-STD
+set rtr1 [$ns node]
+tb-set-node-os $rtr1 Ubuntu1004-STD
+set rtr2 [$ns node]
+tb-set-node-os $rtr2 Ubuntu1004-STD
+set rtr3 [$ns node]
+tb-set-node-os $rtr3 Ubuntu1004-STD
+
+
+# Links
+set link1 [$ns duplex-link $rtr0 $rtr1 1000000.0kb 0.0ms DropTail]
+tb-set-ip-link $rtr0 $link1 1.1.1.1
+tb-set-ip-link $rtr1 $link1 1.1.1.2
+
+set link2 [$ns duplex-link $rtr1 $rtr2 1000000.0kb 0.0ms DropTail]
+tb-set-ip-link $rtr1 $link2 2.1.1.1
+tb-set-ip-link $rtr2 $link2 2.1.1.2
+
+set link3 [$ns duplex-link $rtr2 $rtr3 1000000.0kb 0.0ms DropTail]
+tb-set-ip-link $rtr2 $link3 3.1.1.1
+tb-set-ip-link $rtr3 $link3 3.1.1.2
+
+set link4 [$ns duplex-link $rtr3 $rtr0 1000000.0kb 0.0ms DropTail]
+tb-set-ip-link $rtr3 $link4 4.1.1.1
+tb-set-ip-link $rtr0 $link4 4.1.1.2
+
+
+# Lans
+set lan0 [$ns make-lan "$node0 $rtr0" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node0 $lan0 10.10.10.1
+tb-set-ip-lan $rtr0 $lan0 10.10.10.2
+
+set lan1 [$ns make-lan "$node1 $rtr0" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node1 $lan1 11.11.11.1
+tb-set-ip-lan $rtr0 $lan1 11.11.11.2
+
+set lan2 [$ns make-lan "$node2 $rtr1" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node2 $lan2 12.12.12.1
+tb-set-ip-lan $rtr1 $lan2 12.12.12.2
+
+set lan3 [$ns make-lan "$node3 $rtr1" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node3 $lan3 13.13.13.1
+tb-set-ip-lan $rtr1 $lan3 13.13.13.2
+
+set lan4 [$ns make-lan "$node4 $rtr2" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node4 $lan4 14.14.14.1
+tb-set-ip-lan $rtr2 $lan4 14.14.14.2
+
+set lan5 [$ns make-lan "$node5 $rtr2" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node5 $lan5 15.15.15.1
+tb-set-ip-lan $rtr2 $lan5 15.15.15.2
+
+set lan6 [$ns make-lan "$node6 $rtr3" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node6 $lan6 16.16.16.1
+tb-set-ip-lan $rtr3 $lan6 16.16.16.2
+
+set lan7 [$ns make-lan "$node7 $rtr3" 1000000.0kb 0.0ms]
+tb-set-ip-lan $node7 $lan7 17.17.17.1
+tb-set-ip-lan $rtr3 $lan7 17.17.17.2
+
+
+$ns rtproto Manual
+$ns run
