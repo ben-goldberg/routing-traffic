@@ -18,20 +18,20 @@ def packet_sniff(mac_to_dir_dict, north_queue, east_queue, south_queue, west_que
 
 def receive_packet(pkt, mac_to_dir_dict, north_queue, east_queue, south_queue, west_queue):
     """
-    input: a packet, a dict of source MAC -> received direction mappings, 
+    input: a packet, a dict of dest MAC -> received direction mappings, 
            and 4 multiprocessing queues: one for each receive direction
     output: None
     side effects: puts packet into appropriate multiprocessing queue
     details: this is the sniff() callback function for handling a received packet
     """
-    source_mac = pkt.src
-    if pkt in mac_to_dir_dict["north"]:
+    dest_mac = pkt.dst
+    if dest_mac in mac_to_dir_dict["north"]:
         north_queue.put(pkt)
-    elif pkt in mac_to_dir_dict["east"]:
+    elif dest_mac in mac_to_dir_dict["east"]:
         east_queue.put(pkt)
-    elif pkt in mac_to_dir_dict["south"]:
+    elif dest_mac in mac_to_dir_dict["south"]:
         south_queue.put(pkt)
-    elif pkt in mac_to_dir_dict["west"]:
+    elif dest_mac in mac_to_dir_dict["west"]:
         west_queue.put(pkt)
 
 if __name__ == "__main__":

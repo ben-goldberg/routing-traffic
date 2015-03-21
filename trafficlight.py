@@ -41,7 +41,7 @@ class TrafficLight:
         # Send the packet out the proper interface as required to reach the next hop router
         sendp(new_pkt, iface=out_iface, verbose=0)
 
-    def start():
+    def start(self):
         """
         input: None
         output: None
@@ -82,6 +82,29 @@ class TrafficLight:
             self.handle_packet(pkt1)
             self.handle_packet(pkt2)
 
+    def determine_state(self):
+        """
+        input: None
+        output: returns traffic light state as follows:
+                    0 -> North and South are allowed to turn
+                    1 -> North and South are allowed to go straight
+                    2 -> East and West are allowed to turn
+                    3 -> East and West are allowed to go straight
+        """
+        # only currently implemented traffic control alg is simple stop sign
+        return self.stop_sign()
+
+    def stop_sign(self):
+        """
+        input: None
+        output: traffic light state
+        details: simply rotates between 4 states in order
+        """
+        if self.light_state == 3:
+            return 0
+
+        else:
+            return self.light_state + 1
 
 
 
