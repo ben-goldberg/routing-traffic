@@ -221,6 +221,7 @@ class Router:
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
 
+        import pdb; pdb.set_trace()
         # Ping the routers and node0 w/ TTL 1 --> ARP created
         for ip in self.config_dict["adjacent_to"][self.my_ip]:
             ping_str = 'ping ' + str(ip) + ' -c 1'
@@ -249,7 +250,6 @@ class Router:
         print "arp table:\n\n" + str(arp_table)
 
         # Add the dest MAC info into the subnet info
-        import pdb; pdb.set_trace()
         for i in range(len(router_table)):
             for arp_entry in arp_table:
                 if arp_entry[0] == router_table[i][2]:
