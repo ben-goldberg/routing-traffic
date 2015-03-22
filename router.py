@@ -249,6 +249,7 @@ class Router:
         print "arp table:\n\n" + str(arp_table)
 
         # Add the dest MAC info into the subnet info
+        import pdb; pdb.set_trace()
         for i in range(len(router_table)):
             for arp_entry in arp_table:
                 if arp_entry[0] == router_table[i][2]:
@@ -271,7 +272,6 @@ class Router:
 
         # Combine the parameters we have gathered for each subnet and add them
         #  to the routing table
-        import pdb; pdb.set_trace()
         for i in range(len(router_table)):
             router_table[i].append(interface_destmac_dict[router_table[i][-1]])
 
