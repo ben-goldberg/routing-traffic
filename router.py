@@ -271,6 +271,7 @@ class Router:
 
         # Combine the parameters we have gathered for each subnet and add them
         #  to the routing table
+        import pdb; pdb.set_trace()
         for i in range(len(router_table)):
             router_table[i].append(interface_destmac_dict[router_table[i][-1]])
 
