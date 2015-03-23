@@ -25,7 +25,6 @@ def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_q
     details: this is the sniff() callback function for handling a received packet
     """
     def pkt_callback(pkt):
-        import pdb; pdb.set_trace()
         dest_mac = pkt.dst
         if dest_mac in mac_to_dir_dict["north"]:
             north_queue.put(pkt)
@@ -54,6 +53,8 @@ if __name__ == "__main__":
     print "routing_table: ", traffic_light.router.routing_table
 
     mac_to_dir_dict = util.match_MAC_to_direction(traffic_light.router, config_dict)
+
+    import pdb; pdb.set_trace()
 
     packet_listener = multiprocessing.Process(target=packet_sniff, \
                     args=(mac_to_dir_dict, traffic_light.north_queue, \
