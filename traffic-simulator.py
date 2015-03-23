@@ -29,11 +29,11 @@ def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_q
         dest_mac = pkt.dst
         if mac_to_dir_dict[dest_mac] == "adjacent_north":
             north_queue.put(pkt)
-        elif mac_to_dir_dict["adjacent_east"]:
+        elif mac_to_dir_dict[dest_mac] == "adjacent_east"
             east_queue.put(pkt)
-        elif mac_to_dir_dict["adjacent_south"]:
+        elif mac_to_dir_dict[dest_mac] == "adjacent_south"
             south_queue.put(pkt)
-        elif mac_to_dir_dict["adjacent_west"]:
+        elif mac_to_dir_dict[dest_mac] == "adjacent_west"
             west_queue.put(pkt)
     return pkt_callback
 
