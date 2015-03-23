@@ -79,6 +79,12 @@ class TrafficLight:
                 pkt1 = self.east_queue.get()
                 pkt2 = self.west_queue.get()
 
+            # both packets were made into strings so they could be picked
+            # they must now be re-packetified
+            pkt1 = IP(pkt1)
+            pkt2 = IP(pkt2)
+
+            # Send each packet to its destination
             self.handle_packet(pkt1)
             self.handle_packet(pkt2)
 
