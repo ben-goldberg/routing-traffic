@@ -24,7 +24,7 @@ def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_q
     side effects: puts packet into appropriate multiprocessing queue
     details: this is the sniff() callback function for handling a received packet
     """
-    def pkt_callback(packet):
+    def pkt_callback(pkt):
         dest_mac = pkt.dst
         if dest_mac in mac_to_dir_dict["north"]:
             north_queue.put(pkt)
