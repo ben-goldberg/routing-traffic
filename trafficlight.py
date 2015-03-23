@@ -36,7 +36,7 @@ class TrafficLight:
             return
 
         # Since packet is valid, prepare it to be sent
-        new_pkt = self.router.prep_pkt(pkt)
+        new_pkt, out_iface = self.router.prep_pkt(pkt)
 
         # Send the packet out the proper interface as required to reach the next hop router
         sendp(new_pkt, iface=out_iface, verbose=0)
@@ -81,10 +81,6 @@ class TrafficLight:
 
             # both packets were made into strings so they could be pickled
             # they must now be re-packetified
-            # TODO
-            #-----
-            # pkts are being incorrectly re-packetified"
-            #-----
             pkt1 = Ether(pkt1)
             pkt2 = Ether(pkt2)
 

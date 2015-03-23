@@ -193,7 +193,7 @@ class Router:
     def prep_pkt(self, pkt):
         """
         input: a valid packet
-        output: returns a packet to be sent
+        output: returns a packet to be sent, and the interface to send it over
         side effects: handles this step of routing for input packet
         details: this function assumes a valid packet, i.e. a packet which
                  should not be dropped at this router
@@ -216,7 +216,7 @@ class Router:
         del pkt[IP].chksum
         pkt = pkt.__class__(str(pkt))
 
-        return pkt
+        return pkt, out_iface
 
     def setup(self):
 
