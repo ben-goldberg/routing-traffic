@@ -70,7 +70,6 @@ class TrafficLight:
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                #import pdb; pdb.set_trace()
                 pkt1 = self.east_queue.get()
                 pkt2 = self.west_queue.get()
 
@@ -81,6 +80,7 @@ class TrafficLight:
 
             # both packets were made into strings so they could be picked
             # they must now be re-packetified
+            import pdb; pdb.set_trace()
             pkt1 = IP(pkt1)
             pkt2 = IP(pkt2)
 
