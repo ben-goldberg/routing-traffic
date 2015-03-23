@@ -65,23 +65,23 @@ class TrafficLight:
             # Based on state, get a packet from each of the allowable directions
             # North and South are allowed to turn
             if self.light_state == 0:
-                pkt1 = self.north_queue.get()
-                pkt2 = self.south_queue.get()
+                pkt1 = self.north_queue.get(False)
+                pkt2 = self.south_queue.get(False)
 
             # North and South are allowed to go straight    
             elif self.light_state == 1:
-                pkt1 = self.north_queue.get()
-                pkt2 = self.south_queue.get()
+                pkt1 = self.north_queue.get(False)
+                pkt2 = self.south_queue.get(False)
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                pkt1 = self.east_queue.get()
-                pkt2 = self.west_queue.get()
+                pkt1 = self.east_queue.get(False)
+                pkt2 = self.west_queue.get(False)
 
             # East and West are allowed to go straight
             else:
-                pkt1 = self.east_queue.get()
-                pkt2 = self.west_queue.get()
+                pkt1 = self.east_queue.get(False)
+                pkt2 = self.west_queue.get(False)
 
             # both packets were made into strings so they could be picked
             # they must now be re-packetified
