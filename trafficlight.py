@@ -38,7 +38,7 @@ class TrafficLight:
         print
         print "still alive"
         print
-        
+
         # Since packet is valid, prepare it to be sent
         new_pkt = self.router.prep_pkt(pkt)
 
@@ -85,10 +85,11 @@ class TrafficLight:
 
             # both packets were made into strings so they could be picked
             # they must now be re-packetified
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             pkt1 = IP(pkt1)
             pkt2 = IP(pkt2)
 
+            print "now calling handle_packet"
             # Send each packet to its destination
             self.handle_packet(pkt1)
             self.handle_packet(pkt2)
