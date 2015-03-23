@@ -166,14 +166,14 @@ class Router:
 
         if not has_route:
             print dest_ip + " is unreachable"
-            self.send_icmp(pkt, icmp_type=3, icmp_code=11)
+            #self.send_icmp(pkt, icmp_type=3, icmp_code=11)
             return True
 
         # If Packet's Time-To-Live is 1, this iteration will drop it to 0
         # Thus, packet should be dropped, send ICMP for TTL expired
         if pkt[IP].ttl == 1:
             print "ttl expired"
-            self.send_icmp(pkt, icmp_type=11, icmp_code=0)
+            #self.send_icmp(pkt, icmp_type=11, icmp_code=0)
             return True
 
         # Drop packet if src is equal to local_mac, as this means pkt is duplicate
