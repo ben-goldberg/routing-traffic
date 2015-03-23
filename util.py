@@ -6,6 +6,7 @@ import json
 from multiprocessing import Queue
 import Queue
 
+
 def safe_get(multi_queue):
     """
     input: a multiprocessing queue
