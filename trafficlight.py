@@ -35,6 +35,8 @@ class TrafficLight:
         if drop_pkt:
             return
 
+        print pkt
+
         # Since packet is valid, prepare it to be sent
         new_pkt = self.router.prep_pkt(pkt)
 
