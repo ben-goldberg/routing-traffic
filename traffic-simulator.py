@@ -35,6 +35,8 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
             south_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_west"] == dest_mac:
             west_queue.put(pkt)
+        else:
+            print "no direction found!"
     return pkt_callback
 
 if __name__ == "__main__":
