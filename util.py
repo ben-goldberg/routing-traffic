@@ -23,6 +23,7 @@ def match_MAC_to_direction(router, config_dict):
             if entry.dest == config_dict[direction][my_ip]:
                 mac_to_dir_dict[entry.local_mac] = direction
                 break
+    return mac_to_dir_dict
 
 def ipstr_to_hex(ip_str):
     """
