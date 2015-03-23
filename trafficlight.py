@@ -85,7 +85,7 @@ class TrafficLight:
 
             # both packets were made into strings so they could be picked
             # they must now be re-packetified
-            #import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             pkt1 = IP(pkt1)
             pkt2 = IP(pkt2)
 
