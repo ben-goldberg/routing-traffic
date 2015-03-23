@@ -1,7 +1,7 @@
 # Author: Ben Goldberg
 from scapy.all import *
 from trafficlight import TrafficLight
-import util, sys
+import util, sys, multiprocessing
 
 def packet_sniff(mac_to_dir_dict, north_queue, east_queue, south_queue, west_queue):
     """
