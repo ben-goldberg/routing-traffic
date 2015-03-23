@@ -29,6 +29,7 @@ class TrafficLight:
         side effects: takes in received packet, drops packet if necessary,
                       or sends to its next hop
         """
+        import pdb; pdb.set_trace()
 
         # Check if packet should be dropped
         drop_pkt = self.router.should_drop_pkt(pkt)
