@@ -152,6 +152,10 @@ class Router:
         if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
             return True
 
+        # Drop packet if loopback addr is present
+        if "127.0.0.1" in pkt:
+            return
+
         # Drop packets from control network
         if "192.168" in dest_ip:
             return True
