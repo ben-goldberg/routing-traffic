@@ -43,7 +43,7 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
             south_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_west"] == dest_mac:
             print "found pkt from west direction"
-            print pkt
+            pkt.show()
             west_queue.put(pkt)
 
     return pkt_callback
