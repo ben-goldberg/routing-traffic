@@ -31,16 +31,13 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
         # scapy packets cannot be pickled, so I must stringify them here and 
         # re-packetify them on the receiving end
         pkt = str(pkt)
-
-        # drop packet immediately if src or dst is loopback addr
-        if "127.0.0.1" in pkt:
-            return
         
         if dir_to_mac_dict["adjacent_north"] == dest_mac:
             print "found pkt from north direction"
             north_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_east"] == dest_mac:
             print "found pkt from east direction"
+            print pkt
             east_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_south"] == dest_mac:
             print "found pkt from south direction"
