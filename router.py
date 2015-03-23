@@ -9,10 +9,6 @@ from util import *
 
 # TODO
 # -------------
-# router has 4 phases for traffic simulation, provides API for seeing current
-#   phase and for switching between phases: my_router.get_phase(), .set_phase()
-#   this may require 2 processes: 1 to run routing, one to listen for phase
-#   change calls and notify main process
 # Provide throughput metrics
 # Make this run faster?
 # --------------

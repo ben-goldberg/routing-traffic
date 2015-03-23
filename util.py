@@ -18,9 +18,9 @@ def match_MAC_to_direction(router, config_dict):
     mac_to_dir_dict = {}
     my_ip = router.my_ip
     direction_list = ["adjacent_north", "adjacent_east", "adjacent_south", "adjacent_west"]
-    for entry in router.routing_table.table:
-        for direction in direction_list:
-            if entry.dest == config_dict[direction][my_ip]:
+    for direction in direction_list:
+        for entry in router.routing_table.table:
+            if entry.gateway == config_dict[direction][my_ip]:
                 mac_to_dir_dict[entry.local_mac] = direction
                 break
     return mac_to_dir_dict
