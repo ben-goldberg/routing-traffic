@@ -2,6 +2,7 @@
 from scapy.all import *
 import router
 import multiprocessing
+import util
 
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
@@ -29,15 +30,10 @@ class TrafficLight:
         side effects: takes in received packet, drops packet if necessary,
                       or sends to its next hop
         """
-        print pkt
         # Check if packet should be dropped
         drop_pkt = self.router.should_drop_pkt(pkt)
         if drop_pkt:
             return
-
-        print
-        print "still alive"
-        print
 
         # Since packet is valid, prepare it to be sent
         new_pkt = self.router.prep_pkt(pkt)
@@ -65,31 +61,29 @@ class TrafficLight:
             # Based on state, get a packet from each of the allowable directions
             # North and South are allowed to turn
             if self.light_state == 0:
-                pkt1 = self.north_queue.get(False)
-                pkt2 = self.south_queue.get(False)
+                pkt1 = util.safe_get(self.north_queue)
+                pkt2 = util.safe_get(self.south_queue)
 
             # North and South are allowed to go straight    
             elif self.light_state == 1:
-                pkt1 = self.north_queue.get(False)
-                pkt2 = self.south_queue.get(False)
+                pkt1 = util.safe_get(self.north_queue)
+                pkt2 = util.safe_get(self.south_queue)
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                pkt1 = self.east_queue.get(False)
-                pkt2 = self.west_queue.get(False)
+                pkt1 = util.safe_get(self.east_queue)
+                pkt2 = util.safe_get(self.west_queue)
 
             # East and West are allowed to go straight
             else:
-                pkt1 = self.east_queue.get(False)
-                pkt2 = self.west_queue.get(False)
+                pkt1 = util.safe_get(self.east_queue)
+                pkt2 = util.safe_get(self.west_queue)
 
-            # both packets were made into strings so they could be picked
+            # both packets were made into strings so they could be pickled
             # they must now be re-packetified
-            import pdb; pdb.set_trace()
             pkt1 = IP(pkt1)
             pkt2 = IP(pkt2)
 
-            print "now calling handle_packet"
             # Send each packet to its destination
             self.handle_packet(pkt1)
             self.handle_packet(pkt2)

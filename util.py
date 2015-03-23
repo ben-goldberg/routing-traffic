@@ -3,6 +3,18 @@
 # Provides a list of utility functions for traffic simulation
 
 import json
+from multiprocessing import Queue
+
+def safe_get(multi_queue):
+    """
+    input: a multiprocessing queue
+    output: if there is an object in the queue, returns it, else returns None
+    """
+    try:
+        obj = multi_queue.get(False)
+        return obj
+    except Queue.Empty:
+        return None
 
 def match_MAC_to_direction(router, config_dict):
     """
