@@ -75,11 +75,6 @@ class TrafficLight:
             elif self.light_state == 2:
                 pkt1 = util.safe_get(self.east_queue)
                 pkt2 = util.safe_get(self.west_queue)
-                temp = IP(pkt2).show()
-                if "127.0.0.1" == temp[IP].src:
-                    print "received west packet:"
-                    temp.show()
-               
 
             # East and West are allowed to go straight
             else:

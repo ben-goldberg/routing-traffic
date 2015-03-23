@@ -160,6 +160,9 @@ class Router:
         if "192.168" in dest_ip:
             return True
 
+        print "useful pkt:"
+        pkt.show()
+
         # If destination *network* not in routing table, send ICMP "Destination host unreachable", then return
         has_route = False
         for entry in self.routing_table:
