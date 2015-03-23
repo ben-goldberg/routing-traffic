@@ -29,8 +29,6 @@ class TrafficLight:
         side effects: takes in received packet, drops packet if necessary,
                       or sends to its next hop
         """
-        import pdb; pdb.set_trace()
-
         # Check if packet should be dropped
         drop_pkt = self.router.should_drop_pkt(pkt)
         if drop_pkt:
@@ -72,7 +70,7 @@ class TrafficLight:
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                import pdb; pdb.set_trace()
+                #import pdb; pdb.set_trace()
                 pkt1 = self.east_queue.get()
                 pkt2 = self.west_queue.get()
 
