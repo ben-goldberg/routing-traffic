@@ -21,7 +21,7 @@ def match_MAC_to_direction(router, config_dict):
     for direction in direction_list:
         for entry in router.routing_table.table:
             if entry.gateway == config_dict[direction][my_ip]:
-                mac_to_dir_dict[entry.local_mac] = direction
+                dir_to_mac_dict[direction] = entry.local_mac
                 break
     return mac_to_dir_dict
 

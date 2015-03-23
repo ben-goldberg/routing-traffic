@@ -3,7 +3,7 @@ from scapy.all import *
 from trafficlight import TrafficLight
 import util, sys, multiprocessing
 
-def packet_sniff(mac_to_dir_dict, north_queue, east_queue, south_queue, west_queue):
+def packet_sniff(dir_to_mac_dict, north_queue, east_queue, south_queue, west_queue):
     """
     input: a dict of source MAC -> received direction mappings, 
            and 4 multiprocessing queues: one for each receive direction
@@ -12,12 +12,12 @@ def packet_sniff(mac_to_dir_dict, north_queue, east_queue, south_queue, west_que
     details: this is the function for the packet sniffing process, it simply
              calls sniff() with the appropriate parameters
     """
-    print mac_to_dir_dict
+    print dir_to_mac_dict
     #Start the packet sniffer
-    sniff(prn = receive_packet(mac_to_dir_dict, north_queue, east_queue, \
+    sniff(prn = receive_packet(dir_to_mac_dict, north_queue, east_queue, \
                 south_queue, west_queue), store=0)
 
-def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_queue):
+def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_queue):
     """
     input: a packet, a dict of dest MAC -> received direction mappings, 
            and 4 multiprocessing queues: one for each receive direction
@@ -27,13 +27,13 @@ def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_q
     """
     def pkt_callback(pkt):
         dest_mac = pkt.dst
-        if mac_to_dir_dict[dest_mac] == "adjacent_north":
+        if dir_to_mac_dict["adjacent_north"] == dest_mac:
             north_queue.put(pkt)
-        elif mac_to_dir_dict[dest_mac] == "adjacent_east":
+        elif dir_to_mac_dict["adjacent_east"] == dest_mac:
             east_queue.put(pkt)
-        elif mac_to_dir_dict[dest_mac] == "adjacent_south":
+        elif dir_to_mac_dict["adjacent_south"] == dest_mac:
             south_queue.put(pkt)
-        elif mac_to_dir_dict[dest_mac] == "adjacent_west":
+        elif dir_to_mac_dict["adjacent_west"] == dest_mac:
             west_queue.put(pkt)
     return pkt_callback
 
@@ -53,10 +53,10 @@ if __name__ == "__main__":
 
     print "routing_table: ", traffic_light.router.routing_table
 
-    mac_to_dir_dict = util.match_MAC_to_direction(traffic_light.router, config_dict)
+    dir_to_mac_dict = util.match_MAC_to_direction(traffic_light.router, config_dict)
 
     packet_listener = multiprocessing.Process(target=packet_sniff, \
-                    args=(mac_to_dir_dict, traffic_light.north_queue, \
+                    args=(dir_to_mac_dict, traffic_light.north_queue, \
                     traffic_light.east_queue, traffic_light.south_queue, \
                     traffic_light.west_queue))
 
