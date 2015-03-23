@@ -28,12 +28,16 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
     def pkt_callback(pkt):
         dest_mac = pkt.dst
         if dir_to_mac_dict["adjacent_north"] == dest_mac:
+            print "found pkt from north direction"
             north_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_east"] == dest_mac:
+            print "found pkt from east direction"
             east_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_south"] == dest_mac:
+            print "found pkt from south direction"
             south_queue.put(pkt)
         elif dir_to_mac_dict["adjacent_west"] == dest_mac:
+            print "found pkt from west direction"
             west_queue.put(pkt)
 
     return pkt_callback
