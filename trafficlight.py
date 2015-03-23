@@ -35,8 +35,6 @@ class TrafficLight:
         if drop_pkt:
             return
 
-        print pkt
-
         # Since packet is valid, prepare it to be sent
         new_pkt = self.router.prep_pkt(pkt)
 
@@ -83,6 +81,10 @@ class TrafficLight:
 
             # both packets were made into strings so they could be pickled
             # they must now be re-packetified
+            # TODO
+            #-----
+            # pkts are being incorrectly re-packetified"
+            #-----
             pkt1 = IP(pkt1)
             pkt2 = IP(pkt2)
 
