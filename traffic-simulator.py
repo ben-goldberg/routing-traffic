@@ -25,6 +25,7 @@ def receive_packet(mac_to_dir_dict, north_queue, east_queue, south_queue, west_q
     details: this is the sniff() callback function for handling a received packet
     """
     def pkt_callback(pkt):
+        import pdb; pdb.set_trace()
         dest_mac = pkt.dst
         if dest_mac in mac_to_dir_dict["north"]:
             north_queue.put(pkt)
