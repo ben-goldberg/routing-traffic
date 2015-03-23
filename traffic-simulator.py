@@ -30,21 +30,21 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
         dest_mac = pkt.dst
         # scapy packets cannot be pickled, so I must stringify them here and 
         # re-packetify them on the receiving end
-        pkt = str(pkt)
+        pkt_str = str(pkt)
         
         if dir_to_mac_dict["adjacent_north"] == dest_mac:
             print "found pkt from north direction"
-            north_queue.put(pkt)
+            north_queue.put(pkt_str)
         elif dir_to_mac_dict["adjacent_east"] == dest_mac:
             print "found pkt from east direction"
-            east_queue.put(pkt)
+            east_queue.put(pkt_str)
         elif dir_to_mac_dict["adjacent_south"] == dest_mac:
             print "found pkt from south direction"
-            south_queue.put(pkt)
+            south_queue.put(pkt_str)
         elif dir_to_mac_dict["adjacent_west"] == dest_mac:
             print "found pkt from west direction"
             pkt.show()
-            west_queue.put(pkt)
+            west_queue.put(pkt_str)
 
     return pkt_callback
 
