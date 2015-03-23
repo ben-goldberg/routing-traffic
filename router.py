@@ -153,7 +153,7 @@ class Router:
             return True
 
         # Drop packet if loopback addr is present
-        if "127.0.0.1" in pkt:
+        if "127.0.0.1" in dest_ip:
             return
 
         # Drop packets from control network
