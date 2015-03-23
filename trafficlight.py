@@ -29,11 +29,16 @@ class TrafficLight:
         side effects: takes in received packet, drops packet if necessary,
                       or sends to its next hop
         """
+        print pkt
         # Check if packet should be dropped
         drop_pkt = self.router.should_drop_pkt(pkt)
         if drop_pkt:
             return
 
+        print
+        print "still alive"
+        print
+        
         # Since packet is valid, prepare it to be sent
         new_pkt = self.router.prep_pkt(pkt)
 
