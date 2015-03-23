@@ -85,8 +85,8 @@ class TrafficLight:
             #-----
             # pkts are being incorrectly re-packetified"
             #-----
-            pkt1 = IP(pkt1)
-            pkt2 = IP(pkt2)
+            pkt1 = Ether(pkt1)
+            pkt2 = Ether(pkt2)
 
             # Send each packet to its destination
             self.handle_packet(pkt1)
