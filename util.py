@@ -15,7 +15,7 @@ def match_MAC_to_direction(router, config_dict):
                 "98:76:65:32:23:16": "adjacent_west"
              }
     """
-    mac_to_dir_dict = {}
+    dir_to_mac_dict = {}
     my_ip = router.my_ip
     direction_list = ["adjacent_north", "adjacent_east", "adjacent_south", "adjacent_west"]
     for direction in direction_list:
@@ -23,7 +23,7 @@ def match_MAC_to_direction(router, config_dict):
             if entry.gateway == config_dict[direction][my_ip]:
                 dir_to_mac_dict[direction] = entry.local_mac
                 break
-    return mac_to_dir_dict
+    return dir_to_mac_dict
 
 def ipstr_to_hex(ip_str):
     """
