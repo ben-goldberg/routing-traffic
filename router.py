@@ -221,7 +221,6 @@ class Router:
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
 
-        import pdb; pdb.set_trace()
         # Ping the routers and node0 w/ TTL 1 --> ARP created
         for ip in self.config_dict["adjacent_to"][self.my_ip]:
             ping_str = 'ping ' + str(ip) + ' -c 1'
