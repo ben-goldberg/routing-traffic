@@ -72,6 +72,7 @@ class TrafficLight:
 
             # East and West are allowed to turn
             elif self.light_state == 2:
+                import pdb; pdb.set_trace()
                 pkt1 = self.east_queue.get()
                 pkt2 = self.west_queue.get()
 
