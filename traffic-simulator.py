@@ -12,7 +12,7 @@ def packet_sniff(mac_to_dir_dict, north_queue, east_queue, south_queue, west_que
     details: this is the function for the packet sniffing process, it simply
              calls sniff() with the appropriate parameters
     """
-    import pdb; pdb.set_trace()
+    print mac_to_dir_dict
     #Start the packet sniffer
     sniff(prn = receive_packet(mac_to_dir_dict, north_queue, east_queue, \
                 south_queue, west_queue), store=0)
