@@ -38,16 +38,16 @@ tb-set-ip-link $rtr0 $link1 1.1.1.1
 tb-set-ip-link $rtr1 $link1 1.1.1.2
 
 set link2 [$ns duplex-link $rtr1 $rtr2 1000000.0kb 0.0ms DropTail]
-tb-set-ip-link $rtr1 $link2 2.1.1.1
-tb-set-ip-link $rtr2 $link2 2.1.1.2
+tb-set-ip-link $rtr1 $link2 2.2.2.1
+tb-set-ip-link $rtr2 $link2 2.2.2.2
 
 set link3 [$ns duplex-link $rtr2 $rtr3 1000000.0kb 0.0ms DropTail]
-tb-set-ip-link $rtr2 $link3 3.1.1.1
-tb-set-ip-link $rtr3 $link3 3.1.1.2
+tb-set-ip-link $rtr2 $link3 3.3.3.1
+tb-set-ip-link $rtr3 $link3 3.3.3.2
 
 set link4 [$ns duplex-link $rtr3 $rtr0 1000000.0kb 0.0ms DropTail]
-tb-set-ip-link $rtr3 $link4 4.1.1.1
-tb-set-ip-link $rtr0 $link4 4.1.1.2
+tb-set-ip-link $rtr3 $link4 4.4.4.1
+tb-set-ip-link $rtr0 $link4 4.4.4.2
 
 
 # Lans
