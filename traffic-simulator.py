@@ -26,10 +26,11 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
     details: this is the sniff() callback function for handling a received packet
     """
     def pkt_callback(pkt):
+        dest_mac = pkt.dst
         # scapy packets cannot be pickled, so I must stringify them here and 
         # re-packetify them on the receiving end
         pkt = str(pkt)
-        dest_mac = pkt.dst
+        
         if dir_to_mac_dict["adjacent_north"] == dest_mac:
             print "found pkt from north direction"
             north_queue.put(pkt)
