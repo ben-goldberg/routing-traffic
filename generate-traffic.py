@@ -53,7 +53,9 @@ def main(argv):
         udpSocket.sendto(msg, (dest_ip,udpPort))
 
         # Receive packets
-        recv_msg, recv_addr = udpSocket.recvfrom(1024)
+        ready_to_read, _ , _ = select.select([udpSocket],[],[], .5)
+        if ready_to_read[0]:
+            recv_msg, recv_ip = udpSocket.recvfrom(1024)
 
         print recv_msg
 
