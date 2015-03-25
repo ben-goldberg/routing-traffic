@@ -54,8 +54,8 @@ def main(argv):
 
         # Receive packets
         ready_to_read, _ , _ = select.select([udpSocket],[],[], .5)
-        if ready_to_read[0]:
-            recv_msg, recv_ip = udpSocket.recvfrom(1024)
+        for socket in ready_to_read[0]:
+            recv_msg, recv_ip = socket.recvfrom(1024)
 
         print recv_msg
 
