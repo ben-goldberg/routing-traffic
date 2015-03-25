@@ -26,7 +26,7 @@ def main(argv):
     time_to_wait = (1.0/pkts_per_min) * 60.0
 
     # Parse the config file into dictionary
-    config_dict = util.parse_config(config_filename)
+    config_dict = util.parse_config(config_file)
 
     # Make UDP socket
     udpPort = 44000
