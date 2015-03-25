@@ -6,7 +6,6 @@ import json
 from multiprocessing import Queue
 import Queue
 
-
 def safe_get(multi_queue):
     """
     input: a multiprocessing queue
@@ -63,6 +62,12 @@ def hex_to_ipstr(hex_val):
     return o1 + '.' + o2 + '.' + o3 + '.' + o4
 
 def nindex(mystr, substr, n=0, index=0):
+    """
+    input: a string, a substring to search for, and two ints
+    output: returns the index of the n'th occurrence of substr in mystr
+    details: found at http://stackoverflow.com/questions/3380654/
+             python-index-more-than-once
+    """
     for _ in xrange(n+1):
         index = mystr.index(substr, index) + 1
     return index - 1

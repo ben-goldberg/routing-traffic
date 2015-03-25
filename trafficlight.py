@@ -113,4 +113,3 @@ class TrafficLight:
             return self.light_state + 1
 
 
-

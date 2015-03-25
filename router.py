@@ -7,12 +7,6 @@ import sys
 import subprocess
 from util import *
 
-# TODO
-# -------------
-# Provide throughput metrics
-# Make this run faster?
-# --------------
-
 class RoutingTable:
     class RoutingTableEntry:
         def __init__(self, param_list, metric=1):

@@ -51,11 +51,11 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
 
     return pkt_callback
 
-if __name__ == "__main__":
+
+def main(args):
     """
-    Expects command line input: python traffic-simulator.py filename my_ip
+    Expects command line input: python traffic-simulator.py config_file.txt my_ip
     """
-    args = sys.argv
     config_filename = str(args[1])
     my_ip = str(args[2])
 
@@ -75,8 +75,12 @@ if __name__ == "__main__":
                     traffic_light.west_queue))
 
     packet_listener.start()
-
     traffic_light.start()
+
+
+if __name__ == "__main__":
+    main(sys.argv)
+
 
 
 
