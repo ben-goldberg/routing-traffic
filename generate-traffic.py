@@ -32,15 +32,15 @@ def main(argv):
     udpPort = 44000
     try:
         udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    except socket.error:
-        print "Failed to create socket with error: "
+    except socket.error, msg:
+        print "Failed to create socket with error: " + msg
         sys.exit()
 
     # Now bind UDP socket to given port
     try:
         udpSocket.bind(("", udpPort))
-    except socket.error:
-        print "Bind failed with error: "
+    except socket.error, msg:
+        print "Bind failed with error: " + msg
         sys.exit()
 
     udpSocket.setblocking(0)
@@ -54,8 +54,8 @@ def main(argv):
 
         # Receive packets
         ready_to_read, _ , _ = select.select([udpSocket],[],[], .5)
-        for socket in ready_to_read[0]:
-            recv_msg, recv_ip = socket.recvfrom(1024)
+        for recv_socket in ready_to_read[0]:
+            recv_msg, recv_ip = recv_socket.recvfrom(1024)
 
         print recv_msg
 
