@@ -20,7 +20,7 @@ def main(argv):
     """
     # Parse command line args
     config_file = argv[1]
-    pkts_per_min = argv[2]
+    pkts_per_min = int(argv[2])
 
     # Time to wait between sending packets to satisfy pkts_per_min arg
     time_to_wait = (1.0/pkts_per_min) * 60.0
