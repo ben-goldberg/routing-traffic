@@ -58,6 +58,9 @@ def main(argv):
             recv_msg, recv_ip = recv_socket.recvfrom(1024)
             print recv_msg
 
+        # Sleep to enforce sending correct num of pkts per sec
+        time.sleep(time_to_wait)
+
     udpSocket.close()
 
 if __name__ == "__main__":
