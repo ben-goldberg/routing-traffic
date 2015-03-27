@@ -3,30 +3,33 @@ import sys, socket, select
 import random, time
 import util
 
-def generate_packet(config_dict):
+def generate_packet(config_dict, my_ip):
     """
-    input: a python dicitonary as specified in util.py
+    input: a python dicitonary as specified in util.py, and this node's IP
     output: a string to send, and the IP of a random node desination to send
             it to
     """
-    msg = str(time.time())
-    dest_ip = random.choice(config_dict["dests"])
+    msg = (str(time.time()), my_ip)
+    dests = config_dict["dests"]
+    dests.remove(my_ip)
+    dest_ip = random.choice(dests)
     return msg, dest_ip
 
 def main(argv):
     """
     Expects command line input: 
-        python generate-traffic.py config_file.txt pkts_per_min
+        python generate-traffic.py config_file.txt my_ip pkts_per_min
     """
     # Parse command line args
     config_file = argv[1]
-    pkts_per_min = int(argv[2])
+    my_ip = argv[2]
+    pkts_per_min = int(argv[3])
 
     # Time to wait between sending packets to satisfy pkts_per_min arg
     time_to_wait = (1.0/pkts_per_min) * 60.0
 
     # Parse the config file into dictionary
-    config_dict = util.parse_config(config_file)
+    config_dict = util.parse_config(config_file, my_ip)
 
     # Make UDP socket
     udpPort = 44000
