@@ -9,7 +9,7 @@ def generate_packet(config_dict, my_ip):
     output: a string to send, and the IP of a random node desination to send
             it to
     """
-    msg = (str(time.time()), my_ip)
+    msg = str(time.time()) + " " + my_ip
     dests = config_dict["dests"]
     dests.remove(my_ip)
     dest_ip = random.choice(dests)
