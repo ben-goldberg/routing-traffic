@@ -29,7 +29,7 @@ def main(argv):
     time_to_wait = (1.0/pkts_per_min) * 60.0
 
     # Parse the config file into dictionary
-    config_dict = util.parse_config(config_file, my_ip)
+    config_dict = util.parse_config(config_file)
 
     # Make UDP socket
     udpPort = 44000
@@ -50,7 +50,7 @@ def main(argv):
 
     while True:
         # Generate one packet to a random other node
-        msg, dest_ip = generate_packet(config_dict)
+        msg, dest_ip = generate_packet(config_dict, my_ip)
 
         # Send msg to desired destination
         udpSocket.sendto(msg, (dest_ip,udpPort))
