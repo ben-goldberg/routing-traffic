@@ -3,15 +3,13 @@ import sys, socket, select
 import random, time
 import util
 
-def generate_packet(config_dict, my_ip):
+def generate_packet(dests, my_ip):
     """
-    input: a python dicitonary as specified in util.py, and this node's IP
+    input: a list of destination nodes
     output: a string to send, and the IP of a random node desination to send
             it to
     """
     msg = str(time.time()) + " " + my_ip
-    dests = config_dict["dests"]
-    dests.remove(my_ip)
     dest_ip = random.choice(dests)
     return msg, dest_ip
 
@@ -30,6 +28,10 @@ def main(argv):
 
     # Parse the config file into dictionary
     config_dict = util.parse_config(config_file)
+
+    # Get a list of destination nodes
+    dests = config_dict["dests"]
+    dests.remove(my_ip)
 
     # Make UDP socket
     udpPort = 44000
@@ -50,7 +52,7 @@ def main(argv):
 
     while True:
         # Generate one packet to a random other node
-        msg, dest_ip = generate_packet(config_dict, my_ip)
+        msg, dest_ip = generate_packet(dests, my_ip)
 
         # Send msg to desired destination
         udpSocket.sendto(msg, (dest_ip,udpPort))
