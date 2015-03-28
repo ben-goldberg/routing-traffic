@@ -141,10 +141,6 @@ class TrafficLight:
                       from correct multiprocessing queue, and sending packets
                       to their appropriate destinations
         """
-        # TODO
-        # ---------------
-        # add go straight vs turn left distinctions
-        # ---------------
         while True:
             # First, determine new state
             self.light_state = self.determine_state()
