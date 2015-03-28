@@ -155,19 +155,22 @@ class TrafficLight:
             # Based on state, get a packet from each of the allowable directions
             # North and South are allowed to turn
             if self.light_state == 0:
-                new_pkt, iface = util.safe_get(self.phase_0_queue)
+                next_obj = util.safe_get(self.phase_0_queue)
 
             # North and South are allowed to go straight    
             elif self.light_state == 1:
-                new_pkt, iface = util.safe_get(self.phase_1_queue)
+                next_obj = util.safe_get(self.phase_1_queue)
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                new_pkt, iface = util.safe_get(self.phase_2_queue)
+                next_obj = util.safe_get(self.phase_2_queue)
 
             # East and West are allowed to go straight
             else:
-                new_pkt, iface = util.safe_get(self.phase_3_queue)
+                next_obj = util.safe_get(self.phase_3_queue)
+
+            if next_obj is not None:
+                new_pkt, iface = next_obj
 
             # Send the packet out the proper interface as required to reach the next hop router
             sendp(new_pkt, iface=iface, verbose=0)
