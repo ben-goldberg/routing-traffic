@@ -183,6 +183,9 @@ class TrafficLight:
             # Find time pkt waited here, add this to avg wait time
             current_time = time.clock()
             elapsed_time = current_time - float(time_arrived)
+            print "current time: " + current_time
+            print "time pkt arrived: " + time_arrived
+            print "elapsed_time: " + elapsed_time
             self.avg_wait_time.add(elapsed_time)
             print self.avg_wait_time.average
 
