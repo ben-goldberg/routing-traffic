@@ -93,7 +93,7 @@ class TrafficLight:
             else:
                 self.phase_1_queue.put((pkt,iface))
 
-        else if src_dir == "east":
+        elif src_dir == "east":
             # If turning left
             if dest_dir == "south":
                 self.phase_2_queue.put((pkt,iface))
@@ -101,7 +101,7 @@ class TrafficLight:
             else:
                 self.phase_3_queue.put((pkt,iface))
 
-        else if src_dir == "south":
+        elif src_dir == "south":
             # If turning left
             if dest_dir == "west":
                 self.phase_0_queue.put((pkt,iface))
@@ -109,7 +109,7 @@ class TrafficLight:
             else:
                 self.phase_1_queue.put((pkt,iface))
 
-        else if src_dir == "west":
+        elif src_dir == "west":
             # If turning left
             if dest_dir == "north":
                 self.phase_2_queue.put((pkt,iface))
