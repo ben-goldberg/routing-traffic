@@ -12,7 +12,6 @@ def packet_sniff(dir_to_mac_dict, north_queue, east_queue, south_queue, west_que
     details: this is the function for the packet sniffing process, it simply
              calls sniff() with the appropriate parameters
     """
-    print dir_to_mac_dict
     #Start the packet sniffer
     sniff(prn = receive_packet(dir_to_mac_dict, north_queue, east_queue, \
                 south_queue, west_queue), store=0)
@@ -65,10 +64,9 @@ def main(args):
     # Instantiate this traffic light
     traffic_light = TrafficLight(config_dict, my_ip)
 
-    print "routing_table: ", traffic_light.router.routing_table
-
     dir_to_mac_dict = util.match_MAC_to_direction(traffic_light.router, config_dict)
 
+    # Make seperate process to listen for packets
     packet_listener = multiprocessing.Process(target=packet_sniff, \
                     args=(dir_to_mac_dict, traffic_light.north_queue, \
                     traffic_light.east_queue, traffic_light.south_queue, \
