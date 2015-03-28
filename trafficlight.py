@@ -169,7 +169,10 @@ class TrafficLight:
             else:
                 next_obj = util.safe_get(self.phase_3_queue)
 
-            if next_obj is not None:
+            # Unpack object if it exists. Else, skip to the next loop iterarion
+            if next_obj is None:
+                continue
+            else:
                 new_pkt, iface = next_obj
 
             # Send the packet out the proper interface as required to reach the next hop router
