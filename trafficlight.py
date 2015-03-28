@@ -3,6 +3,7 @@ from scapy.all import *
 import router
 import multiprocessing
 import util
+import Queue, sys
 
 class TrafficLight:
     def __init__(self, config_dict, my_ip):
@@ -18,7 +19,12 @@ class TrafficLight:
         self.east_queue = multiprocessing.Queue()
         self.south_queue = multiprocessing.Queue()
         self.west_queue = multiprocessing.Queue()
+        self.phase_0_queue = Queue.Queue()
+        self.phase_1_queue = Queue.Queue()
+        self.phase_2_queue = Queue.Queue()
+        self.phase_3_queue = Queue.Queue()
         self.router = router.Router(config_dict, my_ip)
+        self.ip_to_dir_dict = util.match_IP_to_direction(config_dict, my_ip)
 
         # Setup router
         self.router.setup()
@@ -36,10 +42,95 @@ class TrafficLight:
             return
 
         # Since packet is valid, prepare it to be sent
-        new_pkt, out_iface = self.router.prep_pkt(pkt)
+        return self.router.prep_pkt(pkt)
 
-        # Send the packet out the proper interface as required to reach the next hop router
-        sendp(new_pkt, iface=out_iface, verbose=0)
+    def receive_traffic(self):
+        """
+        inputs: None
+        outputs: None
+        side effects: takes one packet out of each multiprocess queue,
+                      prepares them to be sent, and places them in the
+                      queue appropriate for their send state
+        """
+        pkt_list = []
+        pkt_list.append( (util.safe_get(north_queue),"north") )
+        pkt_list.append( (util.safe_get(east_queue), "east") )
+        pkt_list.append( (util.safe_get(south_queue),"south") )
+        pkt_list.append( (util.safe_get(west_queue), "west") )
+
+        for pkt, src in pkt_list:
+            if pkt is None:
+                pass
+            else:
+                # Packets were string-ed to enable pickling, now packetify them
+                pkt = Ether(pkt)
+
+                # Check if packet should be dropped
+                if self.router.should_drop_pkt(pkt):
+                    return
+
+                # Since packet is valid, prepare it to be sent
+                pkt, iface = self.router.prep_pkt(pkt)
+
+                # Place packet/iface into appropriate queue for send state
+                self.queue_pkt_to_send(pkt, iface, src)
+
+
+    def queue_pkt_to_send(self, pkt, iface, src_dir):
+        """
+        input: a pkt, an iface to send it over, and a string representing the
+               direction the pkt came from
+        output: None
+        side effects: pkt/iface are placed into appropriate phase queue
+        """
+        dest_dir = self.get_dest_dir(pkt)
+
+        if src_dir == "north":
+            # If turning left
+            if dest_dir == "east":
+                self.phase_0_queue.put((pkt,iface))
+            # Packet must be going straight, or turning right
+            else:
+                self.phase_1_queue.put((pkt,iface))
+
+        else if src_dir == "east":
+            # If turning left
+            if dest_dir == "south":
+                self.phase_2_queue.put((pkt,iface))
+            # Packet must be going straight, or turning right
+            else:
+                self.phase_3_queue.put((pkt,iface))
+
+        else if src_dir == "south":
+            # If turning left
+            if dest_dir == "west":
+                self.phase_0_queue.put((pkt,iface))
+            # Packet must be going straight, or turning right
+            else:
+                self.phase_1_queue.put((pkt,iface))
+
+        else if src_dir == "west":
+            # If turning left
+            if dest_dir == "north":
+                self.phase_2_queue.put((pkt,iface))
+            # Packet must be going straight, or turning right
+            else:
+                self.phase_3_queue.put((pkt,iface))
+
+
+    def get_dest_dir(self, pkt):
+        """
+        input: a pkt
+        output: a string (either "north", "south", "east", "west") representing
+                the direction the pkt must travel to reach its next-hop
+        """
+        routing_entry = self.router.routing_table.find_entry(pkt[IP].dst)
+        try:
+            return self.ip_to_dir_dict[routing_entry.gateway]
+        except KeyError:
+            print "Key error when matching gateway IP to direction"
+            sys.exit()
+
 
     def start(self):
         """
@@ -58,35 +149,28 @@ class TrafficLight:
             # First, determine new state
             self.light_state = self.determine_state()
 
+            # Move packets from multiprocess-queues to state-based-queue
+            self.receive_traffic()
+
             # Based on state, get a packet from each of the allowable directions
             # North and South are allowed to turn
             if self.light_state == 0:
-                pkt1 = util.safe_get(self.north_queue)
-                pkt2 = util.safe_get(self.south_queue)
+                new_pkt, iface = util.safe_get(self.phase_0_queue)
 
             # North and South are allowed to go straight    
             elif self.light_state == 1:
-                pkt1 = util.safe_get(self.north_queue)
-                pkt2 = util.safe_get(self.south_queue)
+                new_pkt, iface = util.safe_get(self.phase_1_queue)
 
             # East and West are allowed to turn
             elif self.light_state == 2:
-                pkt1 = util.safe_get(self.east_queue)
-                pkt2 = util.safe_get(self.west_queue)
+                new_pkt, iface = util.safe_get(self.phase_2_queue)
 
             # East and West are allowed to go straight
             else:
-                pkt1 = util.safe_get(self.east_queue)
-                pkt2 = util.safe_get(self.west_queue)
+                new_pkt, iface = util.safe_get(self.phase_3_queue)
 
-            # both packets were made into strings so they could be pickled
-            # they must now be re-packetified
-            pkt1 = Ether(pkt1)
-            pkt2 = Ether(pkt2)
-
-            # Send each packet to its destination
-            self.handle_packet(pkt1)
-            self.handle_packet(pkt2)
+            # Send the packet out the proper interface as required to reach the next hop router
+            sendp(new_pkt, iface=iface, verbose=0)
 
     def determine_state(self):
         """

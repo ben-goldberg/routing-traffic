@@ -6,6 +6,21 @@ import json
 from multiprocessing import Queue
 import Queue
 
+def match_IP_to_direction(config_dict, ip):
+    """
+    input: a dictionary of type specified on parse_config, and an ip address
+    output: a dictionary where keys are the IPs that neighbor the given IP,
+            and values are the direction from given IP to the key IP
+    """
+    ip_to_dir_dict = {}
+
+    ip_to_dir_dict[config_dict["adjacent_north"][ip]] = "north"
+    ip_to_dir_dict[config_dict["adjacent_east"][ip]] = "east"
+    ip_to_dir_dict[config_dict["adjacent_south"][ip]] = "south"
+    ip_to_dir_dict[config_dict["adjacent_west"][ip]] = "west"
+
+    return ip_to_dir_dict
+
 def safe_get(multi_queue):
     """
     input: a multiprocessing queue
