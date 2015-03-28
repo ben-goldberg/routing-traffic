@@ -27,7 +27,7 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
     """
     def pkt_callback(pkt):
 
-        current_time = str(time.clock())
+        current_time = str(time.time())
         dest_mac = pkt.dst
 
         # scapy packets cannot be pickled, so I must stringify them here and 

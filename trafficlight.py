@@ -181,7 +181,7 @@ class TrafficLight:
             sendp(new_pkt, iface=iface, verbose=0)
 
             # Find time pkt waited here, add this to avg wait time
-            current_time = time.clock()
+            current_time = time.time()
             elapsed_time = current_time - float(time_arrived)
             print "current time: " + str(current_time)
             print "time pkt arrived: " + time_arrived
