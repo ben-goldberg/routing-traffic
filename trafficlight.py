@@ -2,7 +2,7 @@
 from scapy.all import *
 import router
 import multiprocessing
-import util
+import util, time
 import Queue, sys
 
 class TrafficLight:
@@ -25,6 +25,7 @@ class TrafficLight:
         self.phase_3_queue = Queue.Queue()
         self.router = router.Router(config_dict, my_ip)
         self.ip_to_dir_dict = util.match_IP_to_direction(config_dict, my_ip)
+        self.avg_wait_time = util.LongRunAverage()
 
         # Setup router
         self.router.setup()
@@ -62,6 +63,11 @@ class TrafficLight:
             if pkt is None:
                 pass
             else:
+                # Pull attached timestamp out of pkt
+                space_index = pkt.index(" ")
+                time_arrived = pkt[:space_index]
+                pkt = pkt[space_index+1:]
+
                 # Packets were string-ed to enable pickling, now packetify them
                 pkt = Ether(pkt)
 
@@ -73,10 +79,10 @@ class TrafficLight:
                 pkt, iface = self.router.prep_pkt(pkt)
 
                 # Place packet/iface into appropriate queue for send state
-                self.queue_pkt_to_send(pkt, iface, src)
+                self.queue_pkt_to_send(pkt, iface, src, time_arrived)
 
 
-    def queue_pkt_to_send(self, pkt, iface, src_dir):
+    def queue_pkt_to_send(self, pkt, iface, src_dir, time_arrived):
         """
         input: a pkt, an iface to send it over, and a string representing the
                direction the pkt came from
@@ -88,34 +94,34 @@ class TrafficLight:
         if src_dir == "north":
             # If turning left
             if dest_dir == "east":
-                self.phase_0_queue.put((pkt,iface))
+                self.phase_0_queue.put((pkt,iface, time_arrived))
             # Packet must be going straight, or turning right
             else:
-                self.phase_1_queue.put((pkt,iface))
+                self.phase_1_queue.put((pkt,iface, time_arrived))
 
         elif src_dir == "east":
             # If turning left
             if dest_dir == "south":
-                self.phase_2_queue.put((pkt,iface))
+                self.phase_2_queue.put((pkt,iface, time_arrived))
             # Packet must be going straight, or turning right
             else:
-                self.phase_3_queue.put((pkt,iface))
+                self.phase_3_queue.put((pkt,iface, time_arrived))
 
         elif src_dir == "south":
             # If turning left
             if dest_dir == "west":
-                self.phase_0_queue.put((pkt,iface))
+                self.phase_0_queue.put((pkt,iface, time_arrived))
             # Packet must be going straight, or turning right
             else:
-                self.phase_1_queue.put((pkt,iface))
+                self.phase_1_queue.put((pkt,iface, time_arrived))
 
         elif src_dir == "west":
             # If turning left
             if dest_dir == "north":
-                self.phase_2_queue.put((pkt,iface))
+                self.phase_2_queue.put((pkt,iface, time_arrived))
             # Packet must be going straight, or turning right
             else:
-                self.phase_3_queue.put((pkt,iface))
+                self.phase_3_queue.put((pkt,iface, time_arrived))
 
 
     def get_dest_dir(self, pkt):
@@ -169,10 +175,16 @@ class TrafficLight:
             if next_obj is None:
                 continue
             else:
-                new_pkt, iface = next_obj
+                new_pkt, iface, time_arrived = next_obj
 
             # Send the packet out the proper interface as required to reach the next hop router
             sendp(new_pkt, iface=iface, verbose=0)
+
+            # Find time pkt waited here, add this to avg wait time
+            current_time = time.count()
+            elapsed_time = current_time - time_arrived
+            self.avg_wait_time.add(elapsed_time)
+            print self.avg_wait_time.average
 
     def determine_state(self):
         """

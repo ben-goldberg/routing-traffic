@@ -6,6 +6,22 @@ import json
 from multiprocessing import Queue
 import Queue
 
+class LongRunAverage:
+    def __init__(self):
+        self.average = 0
+        self.count = 0
+    def add(self, value):
+        """
+        input: a value to add to the LongRunAverage
+        output: returns the new average after factoring in that value
+        side effects: updates self.average and self.count
+        """
+        new_sum = (self.average * self.count) + value
+        self.count += 1
+        self.average = float(new_sum) / self.count
+
+        return self.average
+
 def match_IP_to_direction(config_dict, ip):
     """
     input: a dictionary of type specified on parse_config, and an ip address

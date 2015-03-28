@@ -2,6 +2,7 @@
 from scapy.all import *
 from trafficlight import TrafficLight
 import util, sys, multiprocessing
+import time
 
 def packet_sniff(dir_to_mac_dict, north_queue, east_queue, south_queue, west_queue):
     """
@@ -26,27 +27,31 @@ def receive_packet(dir_to_mac_dict, north_queue, east_queue, south_queue, west_q
     """
     def pkt_callback(pkt):
 
+        current_time = str(time.clock())
         dest_mac = pkt.dst
 
         # scapy packets cannot be pickled, so I must stringify them here and 
         # re-packetify them on the receiving end
         pkt_str = str(pkt)
+
+        # Put time into pkt_str, so main process can determine time passage
+        out_pkt = current_time + " "  + pkt_str
         
         if dir_to_mac_dict["adjacent_north"] == dest_mac:
             print "found pkt from north direction"
-            north_queue.put(pkt_str)
+            north_queue.put(out_pkt)
 
         elif dir_to_mac_dict["adjacent_east"] == dest_mac:
             print "found pkt from east direction"
-            east_queue.put(pkt_str)
+            east_queue.put(out_pkt)
 
         elif dir_to_mac_dict["adjacent_south"] == dest_mac:
             print "found pkt from south direction"
-            south_queue.put(pkt_str)
+            south_queue.put(out_pkt)
             
         elif dir_to_mac_dict["adjacent_west"] == dest_mac:
             print "found pkt from west direction"
-            west_queue.put(pkt_str)
+            west_queue.put(out_pkt)
 
     return pkt_callback
 
