@@ -53,10 +53,10 @@ class TrafficLight:
                       queue appropriate for their send state
         """
         pkt_list = []
-        pkt_list.append( (util.safe_get(north_queue),"north") )
-        pkt_list.append( (util.safe_get(east_queue), "east") )
-        pkt_list.append( (util.safe_get(south_queue),"south") )
-        pkt_list.append( (util.safe_get(west_queue), "west") )
+        pkt_list.append( (util.safe_get(self.north_queue),"north") )
+        pkt_list.append( (util.safe_get(self.east_queue), "east") )
+        pkt_list.append( (util.safe_get(self.south_queue),"south") )
+        pkt_list.append( (util.safe_get(self.west_queue), "west") )
 
         for pkt, src in pkt_list:
             if pkt is None:
