@@ -148,8 +148,13 @@ class TrafficLight:
                       to their appropriate destinations
         """
         while True:
-            # First, determine new state
+
+            # First, determine new state. Record if state has changed.
+            state_change = False
+            old_state = self.light_state
             self.light_state = self.determine_state()
+            if self.light_state != old_state:
+                state_change = True
 
             # Move packets from multiprocess-queues to state-based-queue
             self.receive_traffic()
@@ -176,6 +181,11 @@ class TrafficLight:
                 continue
             else:
                 new_pkt, iface, time_arrived = next_obj
+
+            # If state changed on this iteration, sleep for several seconds to
+            # represent time it takes stopped cars to accelerate through
+            if state_change:
+                time.sleep(3)
 
             # Send the packet out the proper interface as required to reach the next hop router
             sendp(new_pkt, iface=iface, verbose=0)
