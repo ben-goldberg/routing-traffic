@@ -26,6 +26,7 @@ class TrafficLight:
         self.router = router.Router(config_dict, my_ip)
         self.ip_to_dir_dict = util.match_IP_to_direction(config_dict, my_ip)
         self.avg_wait_time = util.LongRunAverage()
+        self.traffic_alg_dict = self.setup_alg_dict()
 
         # Setup router
         self.router.setup()
@@ -208,8 +209,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        # only currently implemented traffic control alg is simple stop sign
-        return self.stop_sign()
+        return self.fixed_timer()
 
     def stop_sign(self):
         """
@@ -222,5 +222,42 @@ class TrafficLight:
 
         else:
             return self.light_state + 1
+
+    def fixed_timer(self):
+        """
+        input: None
+        output: traffic light state
+        details: each state gets a fixed time, regardless of traffic conditions
+                 expects that self.state["last_change"] is already instantiated
+        """
+        # Define number of seconds at each given state
+        fixed_state_time = 40
+
+        # Determine how much time has elapsed since last state change
+        current_time = time.time()
+        time_of_last_change = self.traffic_alg_dict["last_change"]
+        elapsed_time = current_time - time_of_last_change
+
+        # If it has been long enough
+        if elapsed_time > fixed_state_time:
+            # Change state
+            if self.light_state == 3:
+                return 0
+            else:
+                return self.light_state + 1
+
+            # Update state
+            self.traffic_alg_dict["last_change"] = current_time
+
+    def setup_alg_dict(self):
+        """
+        input: None
+        output: a dictionary
+        details: creates and sets up a catchall dictionary for various traffic 
+                 algs to use to save additional state
+        """
+        traffic_alg_dict = {}
+        traffic_alg_dict["last_change"] = time.time()
+
 
 
