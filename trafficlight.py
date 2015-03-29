@@ -257,7 +257,11 @@ class TrafficLight:
                  algs to use to save additional state
         """
         traffic_alg_dict = {}
+
+        # Setup for fixed_timer
         traffic_alg_dict["last_change"] = time.time()
+
+        return traffic_alg_dict
 
 
 
