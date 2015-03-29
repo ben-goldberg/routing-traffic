@@ -249,6 +249,11 @@ class TrafficLight:
             # Update state
             self.traffic_alg_dict["last_change"] = current_time
 
+        # If it hasn't been long enough, return current state
+        else:
+            return self.light_state
+
+
     def setup_alg_dict(self):
         """
         input: None
