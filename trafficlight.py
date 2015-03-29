@@ -238,14 +238,17 @@ class TrafficLight:
         # If it has been long enough
         if elapsed_time > fixed_state_time:
             print "Changing state!"
+
+            # Update dictionary
+            self.traffic_alg_dict["last_change"] = current_time
+
             # Change state
             if self.light_state == 3:
                 return 0
             else:
                 return self.light_state + 1
 
-            # Update state
-            self.traffic_alg_dict["last_change"] = current_time
+            
 
         # If it hasn't been long enough, return current state
         else:
