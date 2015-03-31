@@ -206,7 +206,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        return self.fixed_timer()
+        return self.stop_sign()
 
     def stop_sign(self):
         """
