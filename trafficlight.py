@@ -208,6 +208,87 @@ class TrafficLight:
         """
         return self.stop_sign()
 
+    def expert_interarrival(self):
+        """
+        input: None
+        output: traffic light state
+        details: Dynamically chooses between three different fixed-time cycle
+                 lengths depending on interarrival time (the amount of time
+                 that passes between the arrival of two pkts).
+                 Ranks each phase by shortest interarrival time, rotates 
+                 through phases in order, sets time for next phase based on
+                 its interarrival rank.
+                 Loosely adapted from research by W. Wen. Paper available at
+                 http://www.sciencedirect.com/science/article/pii/S0957417407001303
+
+        """
+        # Get number of seconds for current state
+        fixed_state_time = self.traffic_alg_dict["current_state_time"]
+
+        # Determine how much time has elapsed since last state change
+        current_time = time.time()
+        time_of_last_change = self.traffic_alg_dict["last_change"]
+        elapsed_time = current_time - time_of_last_change
+
+        # If it has been long enough
+        if elapsed_time > fixed_state_time:
+
+            # Get current interarrival time (time between 2 pkts arriving)
+            arrival_time_dict = {}
+            queue_list = [self.phase_0_queue, self.phase_1_queue, self.phase_2_queue, self.phase_3_queue]
+
+            # For each queue, try to get arrival time of 2 most recent pkts
+            for queue in queue_list:
+                arrival_time_dict[queue] = []
+                for i in -1,-2:
+                    try:
+                        _, _, time_arrived = queue.queue[i]
+                        arrival_time_dict[queue].append(time_arrived)
+                    except IndexError:
+                        arrival_time_dict[queue].append(None)
+                        break
+
+            # Get interarrival time for each phase queue
+            interarrival_dict = {}
+            for queue in queue_list:
+                # If 1 or 0 pkts were in that queue, interarrival time is inf
+                if None in arrival_time_dict[queue]:
+                    interarrival_dict[queue] = sys.maxint
+                else:
+                    interarrival_time = arrival_time_dict[queue][-1] - arrival_time_dict[queue][-2]
+                    interarrival_dict[queue] = interarrival_time
+
+            # Sort queues based on interarrival time
+            sorted_queues = sorted(queue_list, key=interarrival_dict.get)
+
+            # Change to the next phase
+            if self.light_state == 3:
+                new_state = 0
+            else:
+                new_state = self.light_state + 1
+
+            # Get rank of new phase's queue by shortest interarrival time
+            new_queue_rank = sorted_queues.index(queue_list[new_state])
+
+            # Depending on rank, set phase time for new queue, where queue 
+            # with smallest interarrival time gets longest phase, queue with 
+            # shortest interarrival time gets shortest phase
+            if new_queue_rank == 0:
+                new_phase_time = 50
+            elif new_queue_rank = len(sorted_queues)-1:
+                new_phase_time = 30
+            else:
+                new_phase_time = 40
+
+            # Update dictionary
+            self.traffic_alg_dict["last_change"] = current_time
+            self.traffic_alg_dict["current_state_time"] = new_phase_time
+            
+            return new_state
+
+            
+
+
     def stop_sign(self):
         """
         input: None
@@ -248,8 +329,6 @@ class TrafficLight:
             else:
                 return self.light_state + 1
 
-            
-
         # If it hasn't been long enough, return current state
         else:
             return self.light_state
@@ -266,6 +345,9 @@ class TrafficLight:
 
         # Setup for fixed_timer
         traffic_alg_dict["last_change"] = time.time()
+
+        # Setup for expert_interarrival
+        traffic_alg_dict["current_state_time"] = 40
 
         return traffic_alg_dict
 
