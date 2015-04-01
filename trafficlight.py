@@ -95,6 +95,7 @@ class TrafficLight:
         output: None
         side effects: pkt/iface are placed into appropriate phase queue
         """
+        # Get destination direction
         dest_dir = self.get_dest_dir(pkt)
 
         if src_dir == "north":
@@ -140,8 +141,13 @@ class TrafficLight:
         try:
             return self.ip_to_dir_dict[routing_entry.gateway]
         except KeyError:
-            print "Key error when matching gateway IP to direction"
-            sys.exit()
+            try:
+                return self.ip_to_dir_dict[pkt[IP]]
+
+            except KeyError:
+                print "Key error when matching gateway IP to direction"
+                print "Exiting..."
+                sys.exit()
 
 
     def start(self):
