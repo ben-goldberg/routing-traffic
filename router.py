@@ -72,7 +72,7 @@ class Router:
         self.my_ip = my_ip
         self.routing_table = RoutingTable()
         self.arp_table = []
-        self.local_ip_list = get_local_ip()
+        self.local_ip_list = self.get_local_ip()
         print self.local_ip_list
 
 
