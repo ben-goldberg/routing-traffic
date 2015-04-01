@@ -142,7 +142,8 @@ class Router:
         dest_ip = pkt[IP].dst
 
         # If this router is the dest, return false
-        if self.my_ip == dest_ip:
+        local_ip_list = [entry.gateway for entry in self.routing_table.table]
+        if dest_ip in local_ip_list:
             return False
 
         # Get netmasked IP from pkt's IP
@@ -240,7 +241,7 @@ class Router:
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1'.split())
         subprocess.Popen('sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1'.split())
 
-        # Ping the routers and node0 w/ TTL 1 --> ARP created
+        # Ping adjacent routers and nodes --> ARP created
         for ip in self.config_dict["adjacent_to"][self.my_ip]:
             ping_str = 'ping ' + str(ip) + ' -c 1'
             subprocess.Popen(ping_str.split())
@@ -300,4 +301,6 @@ class Router:
 
         self.routing_table = routing_table
         self.arp_table = arp_table
+
+
         
