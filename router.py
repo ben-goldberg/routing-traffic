@@ -128,6 +128,23 @@ class Router:
         sendp(out_pkt, iface=iface, verbose=0)
 
 
+    def pkt_locally_bound(self, pkt):
+        """
+        input: a packet
+        output: returns a bool representing if packet's final dest is locally
+                connected to self
+        """
+        # Get netmasked IP from pkt's IP
+        dest_ip = pkt[IP].dst
+        netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
+
+        # Check config dict to see if that IP is locally bound
+        if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
+            return True
+
+        else:
+            return False
+
     def should_drop_pkt(self, pkt):
         """
         input: a packet
@@ -142,8 +159,7 @@ class Router:
         dest_ip = pkt[IP].dst
 
         # If the dest IP is local to this computer or LAN, kernel handles packet
-        netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
-        if any(netmasked_dest_ip in ip for ip in self.config_dict["adjacent_to"][self.my_ip]):
+        if self.pkt_locally_bound(pkt):
             return True
 
         # Drop packet if loopback addr is present

@@ -49,7 +49,7 @@ class TrafficLight:
     def receive_traffic(self):
         """
         inputs: None
-        outputs: None
+        output: None
         side effects: takes one packet out of each multiprocess queue,
                       prepares them to be sent, and places them in the
                       queue appropriate for their send state
@@ -73,17 +73,22 @@ class TrafficLight:
                 pkt = Ether(pkt)
 
                 # Check if packet should be dropped
+                locally_bound = False
                 if self.router.should_drop_pkt(pkt):
-                    return
+                    # Don't immediately drop locally bound pkts
+                    if self.router.pkt_locally_bound(pkt):
+                        locally_bound = True
+                    else:
+                        return
 
                 # Since packet is valid, prepare it to be sent
                 pkt, iface = self.router.prep_pkt(pkt)
 
                 # Place packet/iface into appropriate queue for send state
-                self.queue_pkt_to_send(pkt, iface, src, time_arrived)
+                self.queue_pkt_to_send(pkt, iface, src, time_arrived, locally_bound)
 
 
-    def queue_pkt_to_send(self, pkt, iface, src_dir, time_arrived):
+    def queue_pkt_to_send(self, pkt, iface, src_dir, time_arrived, locally_bound):
         """
         input: a pkt, an iface to send it over, and a string representing the
                direction the pkt came from
@@ -95,34 +100,34 @@ class TrafficLight:
         if src_dir == "north":
             # If turning left
             if dest_dir == "east":
-                self.phase_0_queue.put((pkt,iface, time_arrived))
+                self.phase_0_queue.put((pkt, iface, time_arrived, locally_bound))
             # Packet must be going straight, or turning right
             else:
-                self.phase_1_queue.put((pkt,iface, time_arrived))
+                self.phase_1_queue.put((pkt, iface, time_arrived, locally_bound))
 
         elif src_dir == "east":
             # If turning left
             if dest_dir == "south":
-                self.phase_2_queue.put((pkt,iface, time_arrived))
+                self.phase_2_queue.put((pkt, iface, time_arrived, locally_bound))
             # Packet must be going straight, or turning right
             else:
-                self.phase_3_queue.put((pkt,iface, time_arrived))
+                self.phase_3_queue.put((pkt, iface, time_arrived, locally_bound))
 
         elif src_dir == "south":
             # If turning left
             if dest_dir == "west":
-                self.phase_0_queue.put((pkt,iface, time_arrived))
+                self.phase_0_queue.put((pkt, iface, time_arrived, locally_bound))
             # Packet must be going straight, or turning right
             else:
-                self.phase_1_queue.put((pkt,iface, time_arrived))
+                self.phase_1_queue.put((pkt, iface, time_arrived, locally_bound))
 
         elif src_dir == "west":
             # If turning left
             if dest_dir == "north":
-                self.phase_2_queue.put((pkt,iface, time_arrived))
+                self.phase_2_queue.put((pkt, iface, time_arrived, locally_bound))
             # Packet must be going straight, or turning right
             else:
-                self.phase_3_queue.put((pkt,iface, time_arrived))
+                self.phase_3_queue.put((pkt, iface, time_arrived, locally_bound))
 
 
     def get_dest_dir(self, pkt):
@@ -181,7 +186,7 @@ class TrafficLight:
             if next_obj is None:
                 continue
             else:
-                new_pkt, iface, time_arrived = next_obj
+                new_pkt, iface, time_arrived, locally_bound = next_obj
 
             # If state changed on this iteration, sleep for several seconds to
             # represent time it takes stopped cars to accelerate through
@@ -189,7 +194,9 @@ class TrafficLight:
                 time.sleep(3)
 
             # Send the packet out the proper interface as required to reach the next hop router
-            sendp(new_pkt, iface=iface, verbose=0)
+            # If packet is locally bound, kernel has already routed it to final dest
+            if not locally_bound:
+                sendp(new_pkt, iface=iface, verbose=0)
 
             # Find time pkt waited here, add this to avg wait time
             current_time = time.time()
