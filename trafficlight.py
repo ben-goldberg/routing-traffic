@@ -140,7 +140,7 @@ class TrafficLight:
         routing_entry = self.router.routing_table.find_entry(pkt[IP].dst)
         try:
             return self.ip_to_dir_dict[routing_entry.gateway]
-            
+
         except KeyError:
             try:
                 return self.ip_to_dir_dict[pkt[IP].dst]
@@ -220,7 +220,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        return self.fixed_timer()
+        return self.expert_interarrival()
 
     def expert_interarrival(self):
         """
