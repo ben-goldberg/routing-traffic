@@ -206,7 +206,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        return self.stop_sign()
+        return self.fixed_timer()
 
     def expert_interarrival(self):
         """
@@ -283,7 +283,7 @@ class TrafficLight:
             # Update dictionary
             self.traffic_alg_dict["last_change"] = current_time
             self.traffic_alg_dict["current_state_time"] = new_phase_time
-            
+
             return new_state
 
             
