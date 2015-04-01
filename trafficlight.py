@@ -257,7 +257,7 @@ class TrafficLight:
                 for i in -1,-2:
                     try:
                         print queue.queue[i]
-                        _, _, time_arrived = queue.queue[i]
+                        _, _, time_arrived, _ = queue.queue[i]
                         arrival_time_dict[queue].append(time_arrived)
                     except IndexError:
                         arrival_time_dict[queue].append(None)
