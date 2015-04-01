@@ -143,6 +143,7 @@ class Router:
 
         # If this router is the dest, return false
         local_ip_list = [entry.gateway for entry in self.routing_table.table]
+        print local_ip_list
         if dest_ip in local_ip_list:
             return False
 
