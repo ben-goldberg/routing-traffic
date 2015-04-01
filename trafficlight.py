@@ -266,7 +266,7 @@ class TrafficLight:
             # Make each element of the arrival time dict a float
             print arrival_time_dict
             for queue in queue_list:
-                for i in xrange(arrival_time_dict[queue]):
+                for i in range(len(arrival_time_dict[queue])):
                     arrival_time_dict[queue][i] = float(arrival_time_dict[queue][i])
 
             # Get interarrival time for each phase queue
