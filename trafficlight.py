@@ -229,9 +229,8 @@ class TrafficLight:
         details: Dynamically chooses between three different fixed-time cycle
                  lengths depending on interarrival time (the amount of time
                  that passes between the arrival of two pkts).
-                 Ranks each phase by shortest interarrival time, rotates 
-                 through phases in order, sets time for next phase based on
-                 its interarrival rank.
+                 Rrotates through phases in order, sets time for next phase
+                 based on its interarrival time.
                  Loosely adapted from research by W. Wen. Paper available at
                  http://www.sciencedirect.com/science/article/pii/S0957417407001303
 
@@ -248,39 +247,31 @@ class TrafficLight:
         if elapsed_time > fixed_state_time:
             print "Changing state!"
 
-            # Get current interarrival time (time between 2 pkts arriving)
+            # Get current queue
             arrival_time_dict = {}
             queue_list = [self.phase_0_queue, self.phase_1_queue, self.phase_2_queue, self.phase_3_queue]
+            current_queue = queue_list[self.light_state]
 
-            # For each queue, try to get arrival time of 2 most recent pkts
-            for queue in queue_list:
-                arrival_time_dict[queue] = []
-                for i in -1,-2:
-                    try:
-                        _, _, time_arrived, _ = queue.queue[i]
-                        arrival_time_dict[queue].append(time_arrived)
-                    # If we don't find two packets, interarrival time = inf
-                    except IndexError:
-                        arrival_time_dict[queue].append(sys.maxint)
-                        break
+            # Try to get arrival time of 2 most recent pkts
+            arrival_time_list = []
+            for i in -1,-2:
+                try:
+                    _, _, time_arrived, _ = current_queue.queue[i]
+                    arrival_time_list.append(time_arrived)
+                # If we don't find two packets, interarrival time = inf
+                except IndexError:
+                    arrival_time_list.append(sys.maxint)
+                    break
 
-            # Make each element of the arrival time dict a float
-            for queue in queue_list:
-                for i in range(len(arrival_time_dict[queue])):
-                    arrival_time_dict[queue][i] = float(arrival_time_dict[queue][i])
+            # Make each element a float
+            for i in range(len(arrival_time_list)):
+                arrival_time_list[i] = float(arrival_time_list[i])
 
-            # Get interarrival time for each phase queue
-            interarrival_dict = {}
-            for queue in queue_list:
-                # If 1 or 0 pkts were in that queue, interarrival time is inf
-                if sys.maxint in arrival_time_dict[queue]:
-                    interarrival_dict[queue] = sys.maxint
-                else:
-                    interarrival_time = arrival_time_dict[queue][-1] - arrival_time_dict[queue][-2]
-                    interarrival_dict[queue] = interarrival_time
-
-            # Sort queues based on interarrival time
-            sorted_queues = sorted(queue_list, key=interarrival_dict.get)
+            # Get interarrival time
+            if len(arrival_time_list) == 2:
+                interarrival_time = arrival_time_list[1] - arrival_time_list[0]
+            else:
+                interarrival_time = sys.maxint
 
             # Change to the next phase
             if self.light_state == 3:
@@ -288,18 +279,13 @@ class TrafficLight:
             else:
                 new_state = self.light_state + 1
 
-            # Get rank of new phase's queue by shortest interarrival time
-            new_queue_rank = sorted_queues.index(queue_list[new_state])
-
-            # Depending on rank, set phase time for new queue, where queue 
-            # with smallest interarrival time gets longest phase, queue with 
-            # shortest interarrival time gets shortest phase
-            if new_queue_rank == 0:
-                new_phase_time = 50
-            elif new_queue_rank == len(sorted_queues)-1:
-                new_phase_time = 30
-            else:
+            # Set phase time for new queue
+            if interarrival_time < 1.7: # High traffic
                 new_phase_time = 40
+            elif interarrival_time < 3.4: # Medium traffic
+                new_phase_time = 30
+            else: # Low traffic
+                new_phase_time = 10
 
             # Update dictionary
             self.traffic_alg_dict["last_change"] = current_time
