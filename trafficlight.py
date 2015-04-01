@@ -258,8 +258,9 @@ class TrafficLight:
                     try:
                         _, _, time_arrived, _ = queue.queue[i]
                         arrival_time_dict[queue].append(time_arrived)
+                    # If we don't find two packets, interarrival time = inf
                     except IndexError:
-                        arrival_time_dict[queue].append(None)
+                        arrival_time_dict[queue].append(sys.maxint)
                         break
 
             # Make each element of the arrival time dict a float
@@ -271,7 +272,7 @@ class TrafficLight:
             interarrival_dict = {}
             for queue in queue_list:
                 # If 1 or 0 pkts were in that queue, interarrival time is inf
-                if None in arrival_time_dict[queue]:
+                if sys.maxint in arrival_time_dict[queue]:
                     interarrival_dict[queue] = sys.maxint
                 else:
                     interarrival_time = arrival_time_dict[queue][-1] - arrival_time_dict[queue][-2]
