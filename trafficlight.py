@@ -142,7 +142,11 @@ class TrafficLight:
             return self.ip_to_dir_dict[routing_entry.gateway]
         except KeyError:
             try:
-                return self.ip_to_dir_dict[pkt[IP]]
+                print "ip to dir dict: "
+                print self.ip_to_dir_dict
+                print "dest ip: " , pkt[IP].dst
+
+                return self.ip_to_dir_dict[pkt[IP].dst]
 
             except KeyError:
                 print "Key error when matching gateway IP to direction"
