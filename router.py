@@ -132,14 +132,20 @@ class Router:
         """
         input: a packet
         output: returns a bool representing if packet's final dest is locally
-                connected to self
+                connected to this router.
+        details: if this router is the dest, return False
         """
         # If its not an IP pkt, its not locally bound
         if IP not in pkt:
             return False
 
-        # Get netmasked IP from pkt's IP
         dest_ip = pkt[IP].dst
+
+        # If this router is the dest, return false
+        if self.my_ip == dest_ip:
+            return False
+
+        # Get netmasked IP from pkt's IP
         netmasked_dest_ip = dest_ip[:nindex(dest_ip, '.', 2)]
 
         # Check config dict to see if that IP is locally bound or not
