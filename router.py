@@ -73,7 +73,6 @@ class Router:
         self.routing_table = RoutingTable()
         self.arp_table = []
         self.local_ip_list = self.get_local_ip()
-        print self.local_ip_list
 
 
     def get_local_ip(self):
@@ -296,7 +295,6 @@ class Router:
         # The gateway IP should be the second word on the line, but is surrounded
         #   by parentheses
         arp_table = [[a[1].translate(None, '()'),a[3],a[6]] for a in output_split_list if len(a) > 6]
-        print "arp table:\n\n" + str(arp_table)
 
         # Add the dest MAC info into the subnet info
         for i in range(len(router_table)):

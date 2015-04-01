@@ -140,12 +140,9 @@ class TrafficLight:
         routing_entry = self.router.routing_table.find_entry(pkt[IP].dst)
         try:
             return self.ip_to_dir_dict[routing_entry.gateway]
+            
         except KeyError:
             try:
-                print "ip to dir dict: "
-                print self.ip_to_dir_dict
-                print "dest ip: " , pkt[IP].dst
-
                 return self.ip_to_dir_dict[pkt[IP].dst]
 
             except KeyError:
