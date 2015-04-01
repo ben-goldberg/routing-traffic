@@ -275,7 +275,7 @@ class TrafficLight:
             # shortest interarrival time gets shortest phase
             if new_queue_rank == 0:
                 new_phase_time = 50
-            elif new_queue_rank = len(sorted_queues)-1:
+            elif new_queue_rank == len(sorted_queues)-1:
                 new_phase_time = 30
             else:
                 new_phase_time = 40
