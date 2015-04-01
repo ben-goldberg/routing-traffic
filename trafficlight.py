@@ -205,6 +205,13 @@ class TrafficLight:
             if not locally_bound:
                 sendp(new_pkt, iface=iface, verbose=0)
 
+            # Delay here to limit number of cars that can be routed per min
+            # Assume 40mph: 40mi/h = .667 mi/min * 1 min = .667 mi 
+            # -> car .667mi = 3520ft away or closer will be routed. At delay=.5, this
+            # gives us 120 cars/min at max: 3520ft/120cars = 29.3ft/car
+            # Avg car ~15ft long -> at max capacity, 15 ft between cars
+            time.sleep(.5)
+
             # Find time pkt waited here, add this to avg wait time
             current_time = time.time()
             elapsed_time = current_time - float(time_arrived)
