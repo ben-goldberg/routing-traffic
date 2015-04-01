@@ -246,6 +246,7 @@ class TrafficLight:
 
         # If it has been long enough
         if elapsed_time > fixed_state_time:
+            print "Changing state!"
 
             # Get current interarrival time (time between 2 pkts arriving)
             arrival_time_dict = {}
@@ -264,7 +265,6 @@ class TrafficLight:
                         break
 
             # Make each element of the arrival time dict a float
-            print arrival_time_dict
             for queue in queue_list:
                 for i in range(len(arrival_time_dict[queue])):
                     arrival_time_dict[queue][i] = float(arrival_time_dict[queue][i])
