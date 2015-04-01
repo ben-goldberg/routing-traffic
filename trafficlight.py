@@ -256,7 +256,6 @@ class TrafficLight:
                 arrival_time_dict[queue] = []
                 for i in -1,-2:
                     try:
-                        print queue.queue[i]
                         _, _, time_arrived, _ = queue.queue[i]
                         arrival_time_dict[queue].append(time_arrived)
                     except IndexError:
@@ -264,6 +263,7 @@ class TrafficLight:
                         break
 
             # Make each element of the arrival time dict a float
+            print arrival_time_dict
             for queue in queue_list:
                 arrival_time_dict[queue] = float(arrival_time_dict[queue])
 
