@@ -301,6 +301,10 @@ class TrafficLight:
 
             return new_state
 
+    # If it hasn't been long enough, return current state
+        else:
+            return self.light_state
+
             
 
 
