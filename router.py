@@ -72,6 +72,37 @@ class Router:
         self.my_ip = my_ip
         self.routing_table = RoutingTable()
         self.arp_table = []
+        self.local_ip_list = get_local_ip()
+        print self.local_ip_list
+
+
+    def get_local_ip(self):
+        """
+        input: None
+        output: returns a list of all IP addresses local to this router
+        details: hard coded based on specific output given by ifconfig command
+        """
+        # Get newline-seperated list of ifconfig output
+        process = subprocess.Popen("ifconfig", stdout=subprocess.PIPE)
+        output = process.communicate()[0]
+        output_list = output.split('\n')
+
+        # Local addresses are located in this output after "inet addr"
+        ip_list = []
+        for line in output_list:
+            if "inet addr" in line:
+                start_index = line.index(':') + 1
+                stop_index = line[start_index:].index(' ') + start_index
+                ip_list.append(line[start_index:stop_index])
+
+        # Remove loopback and control network IPs
+        for ip in ip_list:
+            if "192.168." in ip:
+                ip_list.remove(ip)
+            if "127.0.0" in ip:
+                ip_list.remove(ip)
+
+        return ip_list
 
 
     def send_icmp(self, pkt, icmp_type, icmp_code):
@@ -142,9 +173,7 @@ class Router:
         dest_ip = pkt[IP].dst
 
         # If this router is the dest, return false
-        local_ip_list = [entry.gateway for entry in self.routing_table.table]
-        print local_ip_list
-        if dest_ip in local_ip_list:
+        if dest_ip in self.local_ip_list:
             return False
 
         # Get netmasked IP from pkt's IP
