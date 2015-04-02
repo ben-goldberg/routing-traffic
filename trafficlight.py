@@ -254,16 +254,22 @@ class TrafficLight:
         if elapsed_time > fixed_state_time:
             print "Changing state!"
 
-            # Get current queue
+            # Change to the next phase
+            if self.light_state == 3:
+                new_state = 0
+            else:
+                new_state = self.light_state + 1
+
+            # Get next queue
             arrival_time_dict = {}
             queue_list = [self.phase_0_queue, self.phase_1_queue, self.phase_2_queue, self.phase_3_queue]
-            current_queue = queue_list[self.light_state]
+            next_queue = queue_list[new_state]
 
             # Try to get arrival time of 2 most recent pkts
             arrival_time_list = []
             for i in -1,-2:
                 try:
-                    _, _, time_arrived, _ = current_queue.queue[i]
+                    _, _, time_arrived, _ = next_queue.queue[i]
                     arrival_time_list.append(time_arrived)
                 # If we don't find two packets, interarrival time = inf
                 except IndexError:
@@ -279,12 +285,6 @@ class TrafficLight:
                 interarrival_time = arrival_time_list[1] - arrival_time_list[0]
             else:
                 interarrival_time = sys.maxint
-
-            # Change to the next phase
-            if self.light_state == 3:
-                new_state = 0
-            else:
-                new_state = self.light_state + 1
 
             # Set phase time for new queue
             if interarrival_time < 1.7: # High traffic
