@@ -227,7 +227,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        return self.fixed_timer()
+        return self.stop_sign()
 
     def expert_interarrival(self):
         """
@@ -303,8 +303,6 @@ class TrafficLight:
         # If it hasn't been long enough, return current state
         else:
             return self.light_state
-
-            
 
 
     def stop_sign(self):
