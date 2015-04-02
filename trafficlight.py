@@ -227,7 +227,7 @@ class TrafficLight:
                     2 -> East and West are allowed to turn
                     3 -> East and West are allowed to go straight
         """
-        return self.expert_interarrival()
+        return self.fixed_timer()
 
     def expert_interarrival(self):
         """
